@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'signinpage.dart';
+import 'auth_service.dart';
+import 'homepage.dart';
+import 'dart:developer' as developer;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -9,9 +12,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _mailController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _passwordController.dispose();
+    _mailController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +44,19 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 25),
                 TextFormField(
-                  controller: _usernameController,
+                  controller: _mailController,
                   decoration: const InputDecoration(
-                    labelText: 'Username',
+                    labelText: 'Email',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your username';
+                      return 'Please enter your email';
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email address';
                     }
                     return null;
                   },
@@ -69,13 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 35),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logging in...')),
-                      );
-                    }
-                  },
+                  onPressed: _login, // Call the login method here
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orangeAccent,
                     padding: const EdgeInsets.symmetric(
@@ -110,6 +118,32 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final user = await _auth.loginUserWithEmailAndPassword(
+            _mailController.text, _passwordController.text);
+        if (user != null) {
+          developer.log("User logged in successfully: ${user.email}");
+          _gotoHome(context);
+        } else {
+          developer.log("User login failed. Received null.");
+        }
+      } catch (e, stacktrace) {
+        developer.log("Error during login: $e", stackTrace: stacktrace);
+      }
+    } else {
+      developer.log("Form validation failed (LOGIN).");
+    }
+  }
+
+  void _gotoHome(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
     );
   }
 }

@@ -1,13 +1,19 @@
+import 'dart:math' as math;
+import 'dart:developer' as developer; // Import for the log function
 import 'package:flutter/material.dart';
+import 'auth_service.dart';
+import 'homepage.dart';
 
 class SigninPage extends StatefulWidget {
-  const SigninPage({Key? key}) : super(key: key);
+  const SigninPage({super.key});
 
   @override
   State<SigninPage> createState() => _SigninPageState();
 }
 
 class _SigninPageState extends State<SigninPage> {
+  final _auth = AuthService();
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -115,13 +121,7 @@ class _SigninPageState extends State<SigninPage> {
                 const SizedBox(height: 35),
                 // Sign Up Button
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Signing up...')),
-                      );
-                    }
-                  },
+                  onPressed: _signup,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orangeAccent,
                     padding: const EdgeInsets.symmetric(
@@ -153,6 +153,48 @@ class _SigninPageState extends State<SigninPage> {
           ),
         ),
       ),
+    );
+  }
+
+  _gotoHome(BuildContext context) => Navigator.push(
+      context, MaterialPageRoute(builder: (context) => const HomePage()));
+
+  _signup() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final user = await _auth.createUserWithEmailAndPassword(
+            _emailController.text, _passwordController.text);
+        if (user != null) {
+          developer.log("User created successfully: ${user.email}");
+          _gotoHome(context);
+        } else {
+          developer.log("User creation failed. Received null.");
+          _showErrorDialog("Failed to create an account. Please try again.");
+        }
+      } catch (e, stacktrace) {
+        developer.log("Error during signup: $e", stackTrace: stacktrace);
+        _showErrorDialog("An unexpected error occurred. Please try again.");
+      }
+    } else {
+      developer.log("Form validation failed.");
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Error"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

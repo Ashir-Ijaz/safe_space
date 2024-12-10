@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "100936218073",
+    "project_id": "safe-space-57c00",
+    "storage_bucket": "safe-space-57c00.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100936218073:android:ae9bcc63ed053d34b855c8",
+        "android_client_info": {
+          "package_name": "com.example.safe_space"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmDQBpwqcTKbpwY7uIChaofzBqYjIqqhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

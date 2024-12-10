@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral() // Replace `jcenter()` with `mavenCentral()` as `jcenter` is deprecated
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.2' // Match your Android Studio version
+        classpath 'com.google.gms:google-services:4.4.2' // Ensure this version is correct
+    }
+}
+
 allprojects {
     repositories {
         google()
