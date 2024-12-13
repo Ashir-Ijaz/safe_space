@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'loginpage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:safe_space/pages/firstpage.dart';
 
 void main() async {
   WidgetsFlutterBinding
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: const LoginPage(),
+      home: Firstpage(),
+      //const LoginPage(),
     );
   }
 }
