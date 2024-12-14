@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_space/auth_service.dart';
+import 'package:safe_space/models/users_db.dart';
 import 'package:safe_space/pages/patientlogin2.dart';
 import 'signuppagep.dart';
 import 'dart:developer' as developer;
@@ -134,8 +135,17 @@ class _LoginPageState extends State<LoginPage> {
         final user = await _auth.loginUserWithEmailAndPassword(
             _mailController.text, _passwordController.text);
         if (user != null) {
-          developer.log("User logged in successfully: ${user.email}");
-          _gotoPatient_Human_Pet(context);
+          final userType = await UsersDb.getUserTypeByUid(user.uid);
+          if (userType == 'patient') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Patient Login Successful !')),
+            );
+            _gotoPatient_Human_Pet(context);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Login failed. Invalid UserType.')),
+            );
+          }
         } else {
           developer.log("User login failed. Received null.");
         }

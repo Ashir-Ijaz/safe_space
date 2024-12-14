@@ -23,7 +23,7 @@ class DatabaseService {
   void addUser(UsersDb user) async {
     await _usersdbRef.add(user);
   }
-
+}
   // void addUser(String uid, UsersDb user) async {
   //   try {
   //     await _usersdbRef.doc(uid).set(user.toJson());
@@ -41,4 +41,4 @@ class DatabaseService {
   //     print("Error adding user: $e");
   //   }
   // }
-}
+

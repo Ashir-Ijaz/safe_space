@@ -57,5 +57,30 @@ class UsersDb {
       print("Error adding user to Firestore: $e");
       rethrow;
     }
-  } //////////////////////////////////////////////////////////////////////
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // Method to fetch the usertype of a specific user by UID
+  static Future<String?> getUserTypeByUid(String uid) async {
+    try {
+      // Reference to the specific user document
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(uid);
+
+      // Fetch the document snapshot
+      final snapshot = await userDoc.get();
+
+      // Check if the document exists
+      if (snapshot.exists) {
+        // Extract the usertype field from the document
+        final userType = snapshot.data()?['usertype'] as String?;
+        return userType;
+      } else {
+        print("User with UID $uid not found.");
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching usertype for UID $uid: $e");
+      return null;
+    }
+  }
 }
