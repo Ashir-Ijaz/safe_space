@@ -21,11 +21,24 @@ class DatabaseService {
   }
 
   void addUser(UsersDb user) async {
-    try {
-      await _usersdbRef.add(user.toJson());
-      print("User added successfully");
-    } catch (e) {
-      print("Error adding user: $e");
-    }
+    await _usersdbRef.add(user);
   }
+
+  // void addUser(String uid, UsersDb user) async {
+  //   try {
+  //     await _usersdbRef.doc(uid).set(user.toJson());
+  //     print("User added successfully with UID: $uid");
+  //   } catch (e) {
+  //     print("Error adding user: $e");
+  //   }
+  // }
+
+  // void addUser(UsersDb user) async {
+  //   try {
+  //     await _usersdbRef.add(user.toJson());
+  //     print("User added successfully");
+  //   } catch (e) {
+  //     print("Error adding user: $e");
+  //   }
+  // }
 }

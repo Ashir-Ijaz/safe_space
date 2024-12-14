@@ -180,15 +180,25 @@ class _SigninPageState extends State<SignupPagep> {
       try {
         final user = await _auth.createUserWithEmailAndPassword(
             _emailController.text, _passwordController.text);
+
         if (user != null) {
-          // Add user data to Firestore with usertype as 'doctor'
-          final newUser = UsersDb(
-            username: _usernameController.text,
-            emaill: _emailController.text,
-            password: _passwordController.text,
-            usertype: 'patient',
-          );
-          DatabaseService().addUser(newUser);
+          // Add user data to Firestore with UID as document ID
+          // final newUser = UsersDb(
+          //   username: _usernameController.text,
+          //   emaill: _emailController.text,
+          //   password: _passwordController.text,
+          //   usertype: 'patient',
+          // );
+
+          // Pass the user's UID to the database service
+          //DatabaseService().addUser(user.uid, newUser);
+
+          UsersDb uuser = UsersDb(
+              username: _usernameController.text,
+              emaill: _emailController.text,
+              password: _passwordController.text,
+              usertype: 'patient');
+          uuser.addUserToFirestore(user.uid);
 
           developer.log("Patient created successfully: ${user.email}");
           _formKey.currentState!.reset();
@@ -204,6 +214,36 @@ class _SigninPageState extends State<SignupPagep> {
       }
     }
   }
+
+  // _signup() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     try {
+  //       final user = await _auth.createUserWithEmailAndPassword(
+  //           _emailController.text, _passwordController.text);
+  //       if (user != null) {
+  //         // Add user data to Firestore with usertype as 'doctor'
+  //         final newUser = UsersDb(
+  //           username: _usernameController.text,
+  //           emaill: _emailController.text,
+  //           password: _passwordController.text,
+  //           usertype: 'patient',
+  //         );
+  //         DatabaseService().addUser(newUser);
+
+  //         developer.log("Patient created successfully: ${user.email}");
+  //         _formKey.currentState!.reset();
+  //         _usernameController.clear();
+  //         _emailController.clear();
+  //         _passwordController.clear();
+  //         _confirmPasswordController.clear();
+  //         _gotopatientlogin(context);
+  //       }
+  //     } catch (e, stacktrace) {
+  //       developer.log("Error during signup: $e", stackTrace: stacktrace);
+  //       _showErrorDialog("An unexpected error occurred. Please try again.");
+  //     }
+  //   }
+  // }     //////////////////////////////////////        222222
 
   // _signup() async {
   //   if (_formKey.currentState!.validate()) {

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+////////////////////////////////////////////////////////////
 class UsersDb {
   String username;
   String emaill; // Consider renaming to 'email' for consistency
@@ -18,7 +19,7 @@ class UsersDb {
   factory UsersDb.fromJson(Map<String, Object?> json) {
     return UsersDb(
       username: json['username'] as String,
-      emaill: json['email'] as String,
+      emaill: json['emaill'] as String,
       password: json['password'] as String,
       usertype: json['usertype'] as String,
     );
@@ -37,9 +38,24 @@ class UsersDb {
   Map<String, Object?> toJson() {
     return {
       'username': username,
-      'email': emaill,
+      'emaill': emaill,
       'password': password,
       'usertype': usertype,
     };
   }
+
+  Future<void> addUserToFirestore(String uid) async {
+    try {
+      // Reference to the 'users' collection
+      final userRef = FirebaseFirestore.instance.collection('users').doc(uid);
+
+      // Set user data in Firestore
+      await userRef.set(this.toJson());
+
+      print("User added to Firestore with UID: $uid");
+    } catch (e) {
+      print("Error adding user to Firestore: $e");
+      rethrow;
+    }
+  } //////////////////////////////////////////////////////////////////////
 }
