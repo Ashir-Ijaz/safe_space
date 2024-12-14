@@ -27,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Background color
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -45,7 +46,6 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 25),
                 TextFormField(
                   controller: _mailController,
-                  obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/auth_service.dart';
+import 'package:safe_space/models/users_db.dart';
+import 'package:safe_space/services/database_service.dart';
+import 'package:safe_space/pages/patientlogin.dart';
+import 'dart:developer' as developer;
 
 class SignupPagep extends StatefulWidget {
   const SignupPagep({Key? key}) : super(key: key);
@@ -8,6 +13,8 @@ class SignupPagep extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SignupPagep> {
+  final _auth = AuthService();
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -117,6 +124,7 @@ class _SigninPageState extends State<SignupPagep> {
                 // Sign Up Button
                 ElevatedButton(
                   onPressed: () {
+                    _signup();
                     if (_formKey.currentState!.validate()) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Signing up...')),
@@ -161,6 +169,84 @@ class _SigninPageState extends State<SignupPagep> {
           ),
         ),
       ),
+    );
+  }
+
+  _gotopatientlogin(BuildContext context) => Navigator.push(
+      context, MaterialPageRoute(builder: (context) => const LoginPage()));
+
+  _signup() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final user = await _auth.createUserWithEmailAndPassword(
+            _emailController.text, _passwordController.text);
+        if (user != null) {
+          // Add user data to Firestore with usertype as 'doctor'
+          final newUser = UsersDb(
+            username: _usernameController.text,
+            emaill: _emailController.text,
+            password: _passwordController.text,
+            usertype: 'patient',
+          );
+          DatabaseService().addUser(newUser);
+
+          developer.log("Patient created successfully: ${user.email}");
+          _formKey.currentState!.reset();
+          _usernameController.clear();
+          _emailController.clear();
+          _passwordController.clear();
+          _confirmPasswordController.clear();
+          _gotopatientlogin(context);
+        }
+      } catch (e, stacktrace) {
+        developer.log("Error during signup: $e", stackTrace: stacktrace);
+        _showErrorDialog("An unexpected error occurred. Please try again.");
+      }
+    }
+  }
+
+  // _signup() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     try {
+  //       final user = await _auth.createUserWithEmailAndPassword(
+  //           _emailController.text, _passwordController.text);
+  //       if (user != null) {
+  //         developer.log("User created successfully: ${user.email}");
+  //         // Reset the form and clear controllers
+  //         _formKey.currentState!.reset();
+  //         _usernameController.clear();
+  //         _emailController.clear();
+  //         _passwordController.clear();
+  //         _confirmPasswordController.clear();
+  //         _gotopatientlogin(context);
+  //       } else {
+  //         developer.log("User creation failed. Received null.");
+  //         _showErrorDialog("Failed to create an account. Please try again.");
+  //       }
+  //     } catch (e, stacktrace) {
+  //       developer.log("Error during signup: $e", stackTrace: stacktrace);
+  //       _showErrorDialog("An unexpected error occurred. Please try again.");
+  //     }
+  //   } else {
+  //     developer.log("Form validation failed.");
+  //   }
+  // }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Error"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

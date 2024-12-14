@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/pages/humanpatientprofile.dart';
+import 'package:safe_space/pages/petpatientprofile.dart';
 
 class PatientLogin extends StatelessWidget {
   @override
@@ -24,6 +26,11 @@ class PatientLogin extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HumanPatientProfile(),
+                      ));
                   // Add navigation logic for Human section here
                   print("Human button clicked!");
                 },
@@ -46,6 +53,11 @@ class PatientLogin extends StatelessWidget {
               SizedBox(height: 35), // Spacer between buttons
               ElevatedButton(
                 onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Petpatientprofile(),
+                      ));
                   // Add navigation logic for Pet section here
                   print("Pet button clicked!");
                 },

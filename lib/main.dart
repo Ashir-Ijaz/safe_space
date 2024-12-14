@@ -1,5 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'loginpage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:safe_space/pages/firstpage.dart';
 
@@ -7,6 +7,10 @@ void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Required to ensure everything is initialized properly
   await Firebase.initializeApp(); // Wait until Firebase is initialized
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
   runApp(MyApp());
 }
 
