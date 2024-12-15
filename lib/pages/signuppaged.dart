@@ -176,63 +176,6 @@ class _SigninPageState extends State<SignupPage> {
   _gotodoctorlogin(BuildContext context) => Navigator.push(
       context, MaterialPageRoute(builder: (context) => const Doctorpagee()));
 
-  // _signup() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     try {
-  //       final user = await _auth.createUserWithEmailAndPassword(
-  //           _emailController.text, _passwordController.text);
-  //       if (user != null) {
-  //         developer.log("User created successfully: ${user.email}");
-  //         // Reset the form and clear controllers
-  //         _formKey.currentState!.reset();
-  //         _usernameController.clear();
-  //         _emailController.clear();
-  //         _passwordController.clear();
-  //         _confirmPasswordController.clear();
-  //         _gotodoctorlogin(context);
-  //       } else {
-  //         developer.log("User creation failed. Received null.");
-  //         _showErrorDialog("Failed to create an account. Please try again.");
-  //       }
-  //     } catch (e, stacktrace) {
-  //       developer.log("Error during signup: $e", stackTrace: stacktrace);
-  //       _showErrorDialog("An unexpected error occurred. Please try again.");
-  //     }
-  //   } else {
-  //     developer.log("Form validation failed.");
-  //   }
-  // }
-
-  // _signup() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     try {
-  //       final user = await _auth.createUserWithEmailAndPassword(
-  //           _emailController.text, _passwordController.text);
-  //       if (user != null) {
-  //         // Add user data to Firestore with usertype as 'doctor'
-  //         final newUser = UsersDb(
-  //           username: _usernameController.text,
-  //           emaill: _emailController.text,
-  //           password: _passwordController.text,
-  //           usertype: 'doctor',
-  //         );
-  //         DatabaseService().addUser(newUser);
-
-  //         developer.log("Doctor created successfully: ${user.email}");
-  //         _formKey.currentState!.reset();
-  //         _usernameController.clear();
-  //         _emailController.clear();
-  //         _passwordController.clear();
-  //         _confirmPasswordController.clear();
-  //         _gotodoctorlogin(context);
-  //       }
-  //     } catch (e, stacktrace) {
-  //       developer.log("Error during signup: $e", stackTrace: stacktrace);
-  //       _showErrorDialog("An unexpected error occurred. Please try again.");
-  //     }
-  //   }
-  // }
-
   _signup() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -240,17 +183,6 @@ class _SigninPageState extends State<SignupPage> {
             _emailController.text, _passwordController.text);
 
         if (user != null) {
-          // Add user data to Firestore with UID as document ID
-          // final newUser = UsersDb(
-          //   username: _usernameController.text,
-          //   emaill: _emailController.text,
-          //   password: _passwordController.text,
-          //   usertype: 'doctor',
-          // );
-
-          // Pass the user's UID to the database service
-          //DatabaseService().addUser(user.uid, newUser);
-          //addUserToFirestore(user.uid, newUser);
           UsersDb uuser = UsersDb(
               username: _usernameController.text,
               emaill: _emailController.text,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/pages/viewprofilehuman.dart';
+import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
 
 class HumanPatientProfile extends StatelessWidget {
   // Adjustable height and width for the hospital slider
@@ -116,6 +118,22 @@ class HumanPatientProfile extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0, // Highlight the current tab (Home as default)
+        onTap: (index) {
+          if (index == 3) {
+            // Check if the Menu icon is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ViewProfileHumanScreen()),
+            );
+          } else if (index == 1) {
+            // Check if the Menu icon is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PatientInfoScreen()),
+            );
+          }
+        },
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

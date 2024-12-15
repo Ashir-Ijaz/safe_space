@@ -147,13 +147,22 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         } else {
-          developer.log("User login failed. Received null.");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User login failed. Received null.')),
+          );
+          // developer.log("User login failed. Received null.");
         }
       } catch (e, stacktrace) {
-        developer.log("Error during login: $e", stackTrace: stacktrace);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error during login: ')),
+        );
+        // developer.log("Error during login: $e", stackTrace: stacktrace);
       }
     } else {
-      developer.log("Form validation failed (LOGIN).");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Form validation failed (LOGIN).')),
+      );
+      // developer.log("Form validation failed (LOGIN).");
     }
   }
 

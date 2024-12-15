@@ -25,34 +25,34 @@
 //               ),
 //             ),
 //             const SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: () async {
-//                 try {
-//                   await _auth.signout();
-//                   // Replace current page with LoginPage after signout
-//                   Navigator.pushReplacement(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (context) => const LoginPage(),
-//                     ),
-//                   );
-//                 } catch (e) {
-//                   // Handle signout errors if needed
-//                   debugPrint("Error during signout: $e");
-//                 }
-//               },
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: Colors.orangeAccent,
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 32,
-//                   vertical: 12,
-//                 ),
-//               ),
-//               child: const Text(
-//                 'Sign Out',
-//                 style: TextStyle(fontSize: 16),
-//               ),
-//             ),
+//             // ElevatedButton(
+//             //   onPressed: () async {
+//             //     try {
+//             //       await _auth.signout();
+//             //       // Replace current page with LoginPage after signout
+//             //       Navigator.pushReplacement(
+//             //         context,
+//             //         MaterialPageRoute(
+//             //           builder: (context) => const LoginPage(),
+//             //         ),
+//             //       );
+//             //     } catch (e) {
+//             //       // Handle signout errors if needed
+//             //       debugPrint("Error during signout: $e");
+//             //     }
+//             //   },
+//             //   style: ElevatedButton.styleFrom(
+//             //     backgroundColor: Colors.orangeAccent,
+//             //     padding: const EdgeInsets.symmetric(
+//             //       horizontal: 32,
+//             //       vertical: 12,
+//             //     ),
+//             //   ),
+//             //   child: const Text(
+//             //     'Sign Out',
+//             //     style: TextStyle(fontSize: 16),
+//             //   ),
+//             // ),
 //           ],
 //         ),
 //       ),

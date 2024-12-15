@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/pages/viewprofile.dart';
+import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
 
 class Petpatientprofile extends StatelessWidget {
   // Adjustable height and width for the hospital slider
@@ -49,7 +51,7 @@ class Petpatientprofile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Patient Name',
+                      'Pet Name',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -116,6 +118,23 @@ class Petpatientprofile extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0, // Highlight the current tab (Home as default)
+        onTap: (index) {
+          if (index == 3) {
+            // Check if the Menu icon is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ViewProfileScreen()),
+            );
+          } else if (index == 1) {
+            // Check if the Menu icon is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PatientInfoScreen()),
+            );
+          }
+        },
+
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
