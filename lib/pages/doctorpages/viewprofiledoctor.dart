@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/models/doctors_db.dart';
 import 'package:safe_space/pages/doctorpages/editprofiledoctor.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ViewProfileApp extends StatelessWidget {
   @override
@@ -87,58 +90,132 @@ class ProfilePhoto extends StatelessWidget {
 }
 
 class ProfileInfoSection extends StatelessWidget {
+  Future<DoctorsDb> fetchProfile(String uid) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('doctors')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return DoctorsDb.fromJson(
+            querySnapshot.docs.first.data() as Map<String, dynamic>);
+      } else {
+        throw Exception('Profile not found.');
+      }
+    } catch (e) {
+      throw Exception('Error fetching profile: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 20,
-        ),
-        ProfileInfoRow(title: 'Name', value: 'viny'),
-        ProfileInfoRow(title: 'Username', value: 'urs_viny'),
-        ProfileInfoRow(
-            title: 'Specialization', value: 'Surgeon'), // Added age field
-        ProfileInfoRow(
-            title: 'Qualification',
-            value: 'Mbbs(Pb),Phd(AFPGM)'), // Added sex field
-        ProfileInfoRow(title: 'Bio', value: 'I like you'),
-        ProfileInfoRow(
-            title: 'Email', value: 'urviny@gmail.com', isGreyed: true),
-        ProfileInfoRow(title: 'Age', value: '20'), // Added sex field
-        ProfileInfoRow(title: 'Sex', value: 'Female'), // Added sex field
+    final User? user = FirebaseAuth.instance.currentUser;
 
-        SizedBox(
-          height: 50,
-        ),
-        Center(
-          child: ElevatedButton(
-            onPressed: () {
-              // Navigate to EditProfilePage
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EditPageDoctor()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 40, vertical: 15), // Button size
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8), // Rounded corners
+    // Return a widget showing the profile only if user is authenticated
+    if (user == null) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    // Use a FutureBuilder to handle the async fetchProfile call
+    return FutureBuilder<DoctorsDb>(
+        future: fetchProfile(user.uid),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show loading indicator while waiting for data
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Handle errors if fetching fails
+            //return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to EditProfilePage
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditPageDoctor()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 40, vertical: 15), // Button size
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                  ),
+                  backgroundColor: Colors.black, // Button color
+                ),
+                child: Text(
+                  'Create Profile',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white, // Text color
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              backgroundColor: Colors.black, // Button color
-            ),
-            child: Text(
-              'Edit',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white, // Text color
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+            );
+          } else if (!snapshot.hasData) {
+            // Handle case where no data is returned
+            return Center(child: Text('Profile not found.'));
+          } else {
+            // If data is fetched successfully, display the profile
+            final doctor = snapshot.data!; // PatientsDb instance
+            return Column(
+              children: [
+                SizedBox(
+                  height: 20,
+                ),
+                ProfileInfoRow(title: 'Name', value: doctor.name),
+                ProfileInfoRow(title: 'Username', value: doctor.username),
+                ProfileInfoRow(
+                    title: 'Specialization',
+                    value: doctor.specialization), // Added age field
+                ProfileInfoRow(
+                    title: 'Qualification',
+                    value: doctor.qualification), // Added sex field
+                ProfileInfoRow(title: 'Bio', value: doctor.bio),
+                ProfileInfoRow(
+                    title: 'Email', value: doctor.email, isGreyed: true),
+                ProfileInfoRow(title: 'Age', value: doctor.age.toString()),
+                ProfileInfoRow(
+                    title: 'Sex', value: doctor.sex), // Added sex field
+
+                SizedBox(
+                  height: 50,
+                ),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Navigate to EditProfilePage
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditPageDoctor()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15), // Button size
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(8), // Rounded corners
+                      ),
+                      backgroundColor: Colors.black, // Button color
+                    ),
+                    child: Text(
+                      'Edit',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white, // Text color
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+        });
   }
 }
 

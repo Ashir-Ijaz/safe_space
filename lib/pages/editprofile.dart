@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/models/petpatient_db.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class EditPage extends StatefulWidget {
+class EditPagePet extends StatefulWidget {
   @override
-  _EditPageState createState() => _EditPageState();
+  _EditPagePetState createState() => _EditPagePetState();
 }
 
-class _EditPageState extends State<EditPage> {
+class _EditPagePetState extends State<EditPagePet> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers for TextFormFields
-  final TextEditingController _nameController =
-      TextEditingController(text: 'viny');
-  final TextEditingController _usernameController =
-      TextEditingController(text: 'urs_viny');
-  final TextEditingController _bioController =
-      TextEditingController(text: 'I Like you');
-  final TextEditingController _emailController =
-      TextEditingController(text: 'urviny@gmail.com');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  // final TextEditingController _bioController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _sexController = TextEditingController();
 
   @override
   void dispose() {
     // Clean up the controllers when the widget is disposed
     _nameController.dispose();
     _usernameController.dispose();
-    _bioController.dispose();
+    // _bioController.dispose();
     _emailController.dispose();
+    _ageController.dispose();
+    _sexController.dispose();
     super.dispose();
   }
 
@@ -75,46 +77,103 @@ class _EditPageState extends State<EditPage> {
                 ),
                 SizedBox(height: 20),
 
-                // Bio Field
-                Text('Bio', style: _fieldLabelStyle()),
+                Text('Age', style: _fieldLabelStyle()),
                 SizedBox(height: 5),
                 TextFormField(
-                  controller: _bioController,
-                  maxLines: 2,
-                  decoration: _inputDecoration('Tell something about yourself'),
-                ),
-                SizedBox(height: 20),
-
-                // Email Field
-                Text('Email', style: _fieldLabelStyle()),
-                SizedBox(height: 5),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: _inputDecoration('Enter your email'),
-                  keyboardType: TextInputType.emailAddress,
+                  controller: _ageController,
+                  decoration: _inputDecoration('Enter your age'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
+                      return 'Please enter your age';
                     }
                     return null;
                   },
                 ),
+                SizedBox(height: 20),
+
+                // Bio Field
+                // Text('Bio', style: _fieldLabelStyle()),
+                // SizedBox(height: 5),
+                // TextFormField(
+                //   controller: _bioController,
+                //   maxLines: 2,
+                //   decoration: _inputDecoration('Tell something about yourself'),
+                // ),
+                // SizedBox(height: 20),
+
+                // Email Field
+                // Text('Email', style: _fieldLabelStyle()),
+                // SizedBox(height: 5),
+                // TextFormField(
+                //   controller: _emailController,
+                //   decoration: _inputDecoration('Enter your email'),
+                //   keyboardType: TextInputType.emailAddress,
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Please enter your email';
+                //     }
+                //     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                //       return 'Please enter a valid email';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                Text('Sex', style: _fieldLabelStyle()),
+                SizedBox(height: 5),
+                DropdownButtonFormField<String>(
+                  value: _sexController.text.isNotEmpty
+                      ? _sexController.text
+                      : null, // Set initial value if available
+                  decoration: _inputDecoration(
+                      'Select your Sex'), // Use your input decoration
+                  items: ['Male', 'Female']
+                      .map((sex) => DropdownMenuItem<String>(
+                            value: sex,
+                            child: Text(sex),
+                          ))
+                      .toList(), // Map list to DropdownMenuItems
+                  onChanged: (value) {
+                    if (value != null) {
+                      _sexController.text = value; // Update the controller
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select your Sex';
+                    }
+                    return null;
+                  },
+                ),
+
                 SizedBox(height: 40),
 
                 // Save Button
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState?.validate() ?? false) {
-                        // Here you can handle saving data logic
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Profile Updated Successfully')),
-                        );
-                        Navigator.pop(context); // Go back to the previous page
+                        final User? user = FirebaseAuth.instance.currentUser;
+                        if (user != null) {
+                          final patientProfile = PetpatientDb(
+                            name: _nameController.text,
+                            username: _usernameController.text,
+                            sex: _sexController.text,
+                            email: user.email ?? '',
+                            age: int.tryParse(_ageController.text) ?? 0,
+                            uid: user
+                                .uid, // Replace with the user's unique ID (e.g., Firebase UID)
+                          );
+
+                          // Save or update the profile in Firestore
+                          await patientProfile.checkAndSaveProfile();
+                          // Here you can handle saving data logic
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Profile Updated Successfully')),
+                          );
+                          Navigator.pop(
+                              context); // Go back to the previous page
+                        }
                       }
                     },
                     style: ElevatedButton.styleFrom(

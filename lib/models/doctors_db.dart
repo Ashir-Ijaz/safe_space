@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DoctorsDb {
@@ -9,7 +7,7 @@ class DoctorsDb {
   String qualification;
   String bio;
   String email;
-  Int age;
+  int age;
   String sex;
   String uid;
 
@@ -32,7 +30,7 @@ class DoctorsDb {
         qualification: json['qualification'] as String,
         bio: json['bio'] as String,
         email: json['email'] as String,
-        age: json['age'] as Int,
+        age: json['age'] as int,
         sex: json['sex'] as String,
         uid: json['uid'] as String);
   }
@@ -44,7 +42,7 @@ class DoctorsDb {
     String? qualification,
     String? bio,
     String? email,
-    Int? age,
+    int? age,
     String? sex,
     String? uid,
   }) {
@@ -75,14 +73,38 @@ class DoctorsDb {
     };
   }
 
-  Future<void> saveToFirestore(String name) async {
+  // Future<void> saveToFirestore(String name) async {
+  //   try {
+  //     final collection =
+  //         FirebaseFirestore.instance.collection('doctors').doc(name);
+  //     await collection.set(toJson());
+  //     print('Doctors saved successfully!');
+  //   } catch (e) {
+  //     print('Failed to save record: $e');
+  //   }
+  // }
+
+  Future<void> checkAndSaveProfile() async {
     try {
-      final collection =
-          FirebaseFirestore.instance.collection('doctors').doc(name);
-      await collection.set(toJson());
-      print('Doctors saved successfully!');
+      // Reference to 'humanpatients' collection
+      final docRef = FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(uid); // Use `uid` as the document ID
+
+      // Check if document exists
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        // If document exists, update it
+        await docRef.update(toJson());
+        print('Profile updated successfully!');
+      } else {
+        // If document does not exist, create it
+        await docRef.set(toJson());
+        print('Profile created successfully!');
+      }
     } catch (e) {
-      print('Failed to save record: $e');
+      print('Error saving/updating profile: $e');
     }
   }
 }

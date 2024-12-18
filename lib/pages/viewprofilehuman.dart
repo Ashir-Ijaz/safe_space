@@ -126,8 +126,36 @@ class ProfileInfoSection extends StatelessWidget {
           // Show loading indicator while waiting for data
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
+          return Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // Navigate to EditProfilePage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditPageHuman()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 40, vertical: 15), // Button size
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                backgroundColor: Colors.black, // Button color
+              ),
+              child: Text(
+                'Create Profile',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white, // Text color
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+
           // Handle errors if fetching fails
-          return Center(child: Text('Error: ${snapshot.error}'));
+          // return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData) {
           // Handle case where no data is returned
           return Center(child: Text('Profile not found.'));
@@ -164,7 +192,7 @@ class ProfileInfoSection extends StatelessWidget {
                     backgroundColor: Colors.black,
                   ),
                   child: Text(
-                    'Edit Profile',
+                    'Edit',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white,
