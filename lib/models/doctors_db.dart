@@ -10,29 +10,40 @@ class DoctorsDb {
   int age;
   String sex;
   String uid;
+  List<String>? availableDays; // New field for selected days
+  String? startTime; // New field for start time
+  String? endTime; // New field for end time
 
-  DoctorsDb(
-      {required this.name,
-      required this.username,
-      required this.specialization,
-      required this.qualification,
-      required this.bio,
-      required this.email,
-      required this.age,
-      required this.sex,
-      required this.uid});
+  DoctorsDb({
+    required this.name,
+    required this.username,
+    required this.specialization,
+    required this.qualification,
+    required this.bio,
+    required this.email,
+    required this.age,
+    required this.sex,
+    required this.uid,
+    this.availableDays,
+    this.startTime,
+    this.endTime,
+  });
 
   factory DoctorsDb.fromJson(Map<String, Object?> json) {
     return DoctorsDb(
-        name: json['name'] as String,
-        username: json['username'] as String,
-        specialization: json['specialization'] as String,
-        qualification: json['qualification'] as String,
-        bio: json['bio'] as String,
-        email: json['email'] as String,
-        age: json['age'] as int,
-        sex: json['sex'] as String,
-        uid: json['uid'] as String);
+      name: json['name'] as String,
+      username: json['username'] as String,
+      specialization: json['specialization'] as String,
+      qualification: json['qualification'] as String,
+      bio: json['bio'] as String,
+      email: json['email'] as String,
+      age: json['age'] as int,
+      sex: json['sex'] as String,
+      uid: json['uid'] as String,
+      availableDays: (json['availableDays'] as List<dynamic>?)?.cast<String>(),
+      startTime: json['startTime'] as String?,
+      endTime: json['endTime'] as String?,
+    );
   }
 
   DoctorsDb copywith({
@@ -45,6 +56,9 @@ class DoctorsDb {
     int? age,
     String? sex,
     String? uid,
+    List<String>? availableDays,
+    String? startTime,
+    String? endTime,
   }) {
     return DoctorsDb(
       name: name ?? this.name,
@@ -56,6 +70,9 @@ class DoctorsDb {
       age: age ?? this.age,
       sex: sex ?? this.sex,
       uid: uid ?? this.uid,
+      availableDays: availableDays ?? this.availableDays,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
     );
   }
 
@@ -70,36 +87,21 @@ class DoctorsDb {
       'age': age,
       'sex': sex,
       'uid': uid,
+      'availableDays': availableDays, // Store as list of selected days
+      'startTime': startTime, // Store start time as string (e.g., '09:00')
+      'endTime': endTime, // Store end time as string (e.g., '17:00')
     };
   }
 
-  // Future<void> saveToFirestore(String name) async {
-  //   try {
-  //     final collection =
-  //         FirebaseFirestore.instance.collection('doctors').doc(name);
-  //     await collection.set(toJson());
-  //     print('Doctors saved successfully!');
-  //   } catch (e) {
-  //     print('Failed to save record: $e');
-  //   }
-  // }
-
   Future<void> checkAndSaveProfile() async {
     try {
-      // Reference to 'humanpatients' collection
-      final docRef = FirebaseFirestore.instance
-          .collection('doctors')
-          .doc(uid); // Use `uid` as the document ID
-
-      // Check if document exists
+      final docRef = FirebaseFirestore.instance.collection('doctors').doc(uid);
       final docSnapshot = await docRef.get();
 
       if (docSnapshot.exists) {
-        // If document exists, update it
         await docRef.update(toJson());
         print('Profile updated successfully!');
       } else {
-        // If document does not exist, create it
         await docRef.set(toJson());
         print('Profile created successfully!');
       }
