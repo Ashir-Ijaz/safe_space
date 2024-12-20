@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:safe_space/models/doctors_db.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:safe_space/models/appointment_db_service.dart';
 
 class EditPageDoctor extends StatefulWidget {
   @override
@@ -259,6 +260,14 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
                             endTime:
                                 endTimeString, // Pass the formatted end time string
                           );
+
+                          final service = DatabaseService(
+                              uid: user.uid,
+                              startTime: startTimeString.toString(),
+                              endTime: endTimeString.toString(),
+                              availableDays: selectedDaysList);
+
+                          await service.saveSlotsToFirestore();
 
                           await patientProfile.checkAndSaveProfile();
                           ScaffoldMessenger.of(context).showSnackBar(

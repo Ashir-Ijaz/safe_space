@@ -1,301 +1,347 @@
 import 'package:flutter/material.dart';
-import 'package:safe_space/models/appointment_db.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:safe_space/models/patients_db.dart';
+import 'package:safe_space/models/humanappointment_db.dart';
+import 'package:intl/intl.dart';
 
-class PatientInfoScreen extends StatefulWidget {
-  const PatientInfoScreen({super.key});
-
+class BookAppointmentPage extends StatefulWidget {
   @override
-  _PatientInfoScreenState createState() => _PatientInfoScreenState();
+  _BookAppointmentPageState createState() => _BookAppointmentPageState();
 }
 
-class _PatientInfoScreenState extends State<PatientInfoScreen> {
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _dobController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _addressController = TextEditingController();
-  TextEditingController _reasonController = TextEditingController();
-  TextEditingController _appointmentTimeController =
-      TextEditingController(); // New controller for appointment time
+class _BookAppointmentPageState extends State<BookAppointmentPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String _gender = 'Male';
-  String _appointmentType = 'General Checkup';
-  String _doctorPreference = 'Dr. John Doe';
-  String _urgencyLevel = 'Normal';
+  // Controllers
+  final TextEditingController _appointmentTimeController =
+      TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _reasonForVisitController =
+      TextEditingController();
 
-  String generateRandomString(int length) {
-    const chars =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    Random random = Random();
-    return List.generate(length, (index) => chars[random.nextInt(chars.length)])
-        .join();
+  // State Variables
+  String? selectedDoctorUid;
+  String? selectedDoctorName;
+  String? appointmentType;
+  String? urgencyLevel;
+
+  List<Map<String, dynamic>> doctors = [];
+  final List<String> appointmentTypes = ['General', 'Specialist', 'Emergency'];
+  final List<String> urgencyLevels = ['Normal', 'Urgent', 'Critical'];
+
+  @override
+  void dispose() {
+    _appointmentTimeController.dispose();
+    _phoneNumberController.dispose();
+    _addressController.dispose();
+    _reasonForVisitController.dispose();
+    super.dispose();
   }
 
-  Future<bool> doesDocumentExist(String id) async {
+  // Fetch Doctors
+  Future<List<Map<String, dynamic>>> fetchDoctors() async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('appointments')
-          .doc(id)
-          .get();
-      return doc.exists;
+      QuerySnapshot snapshot = await _firestore.collection('doctors').get();
+      return snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
     } catch (e) {
-      print('Error checking document existence: $e');
-      return false;
+      print("Error fetching doctors: $e");
+      return [];
     }
   }
 
-  void _submitAppointment() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final Uid = user.uid;
-        DateTime appointmentTime = DateTime.parse(
-            _appointmentTimeController.text); // Convert string to DateTime
+  // Fetch Patient Profile
+  Future<PatientsDb> fetchProfile(String uid) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('humanpatients')
+          .where('uid', isEqualTo: uid)
+          .get();
 
-        final appointment = AppointmentDb(
-            username: _nameController.text,
-            email: _emailController.text,
-            phonenumber: _phoneController.text,
-            address: _addressController.text,
-            gender: _gender,
-            reasonforvisit: _reasonController.text,
-            typeofappointment: _appointmentType,
-            doctorpreference: _doctorPreference,
-            urgencylevel: _urgencyLevel,
-            uid: Uid,
-            appointmentTime: appointmentTime); // Pass appointment time
-
-        String randomId;
-        bool idExists;
-        do {
-          randomId = generateRandomString(16);
-          idExists = await doesDocumentExist(randomId);
-        } while (idExists);
-
-        appointment.saveToFirestore(randomId);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Appointment booked successfully!')),
-        );
-
-        // Clear the form
-        _clearForm();
+      if (querySnapshot.docs.isNotEmpty) {
+        return PatientsDb.fromJson(
+            querySnapshot.docs.first.data() as Map<String, dynamic>);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Auth service not getting current user...')),
-        );
+        throw Exception('Profile not found.');
       }
+    } catch (e) {
+      throw Exception('Error fetching profile: $e');
     }
   }
 
-  void _clearForm() {
-    _nameController.clear();
-    _dobController.clear();
-    _phoneController.clear();
-    _emailController.clear();
-    _addressController.clear();
-    _reasonController.clear();
-    _appointmentTimeController.clear();
-    setState(() {
-      _gender = 'Male';
-      _appointmentType = 'General Checkup';
-      _doctorPreference = 'Dr. John Doe';
-      _urgencyLevel = 'Normal';
-    });
+  // Check Slot Availability
+  // Future<bool> checkAvailability(
+  //     String doctorUid, DateTime appointmentTime) async {
+  //   try {
+  //     return await HumanAppointmentDb.checkAppointmentSlotAvailability(
+  //         doctorUid, appointmentTime);
+  //   } catch (e) {
+  //     print('Error checking slot availability: $e');
+  //     return false;
+  //   }
+  // }
+
+  // Create Dropdown
+  Widget buildDropdown<T>({
+    required String hint,
+    required T? value,
+    required List<T> items,
+    required void Function(T?) onChanged,
+  }) {
+    return DropdownButton<T>(
+      hint: Text(hint),
+      value: value,
+      onChanged: onChanged,
+      isExpanded: true,
+      items: items.map((item) {
+        return DropdownMenuItem<T>(
+          value: item,
+          child: Text(item.toString()),
+        );
+      }).toList(),
+    );
   }
+
+  // Book Appointment
+  // Future<void> bookAppointment(PatientsDb patient) async {
+  //   try {
+  //     final doctorUid = selectedDoctorUid!;
+  //     final appointmentTime = DateTime.parse(_appointmentTimeController.text);
+  //     final phoneNumber = _phoneNumberController.text.trim();
+  //     final address = _addressController.text.trim();
+  //     final reason = _reasonForVisitController.text.trim().isNotEmpty
+  //         ? _reasonForVisitController.text.trim()
+  //         : 'Checkup';
+  //     final appointmentTypeSelected = appointmentType ?? 'General';
+  //     final urgency = urgencyLevel ?? 'Normal';
+  //     final doctorPreference = selectedDoctorName ?? 'None';
+
+  //     // Validate appointment time
+  //     if (appointmentTime.isBefore(DateTime.now())) {
+  //       throw Exception('Appointment time must be in the future.');
+  //     }
+
+  //     // Check slot availability
+  //     bool isAvailable = await checkAvailability(doctorUid, appointmentTime);
+  //     if (!isAvailable) {
+  //       throw Exception('Selected slot is not available.');
+  //     }
+
+  //     // Create the appointment
+  //     final appointment = HumanAppointmentDb(
+  //       appointmentId:
+  //           FirebaseFirestore.instance.collection('humanappointments').doc().id,
+  //       doctorUid: doctorUid,
+  //       patientUid: patient.uid,
+  //       username: patient.username,
+  //       email: patient.email,
+  //       gender: patient.sex,
+  //       phonenumber: phoneNumber,
+  //       address: address,
+  //       reasonforvisit: reason,
+  //       typeofappointment: appointmentTypeSelected,
+  //       doctorpreference: doctorPreference,
+  //       urgencylevel: urgency,
+  //       uid: patient.uid,
+  //       appointmentTime: appointmentTime,
+  //     );
+
+  //     await appointment.bookAppointment();
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Appointment booked successfully')));
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context)
+  //         .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Appointment Booking'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Patient Information',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text('Book Appointment')),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return FutureBuilder<PatientsDb>(
+      future: fetchProfile(user.uid),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(title: Text('Book Appointment')),
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: Text('Error')),
+            body: Center(
+                child: Text('Error fetching profile: ${snapshot.error}')),
+          );
+        } else if (snapshot.hasData) {
+          final patient = snapshot.data!;
+
+          return Scaffold(
+            appBar: AppBar(title: Text('Book Appointment')),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Patient Details
+                    Text(
+                      'Patient Details',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent),
+                    ),
+                    SizedBox(height: 10),
+                    Text('Name: ${patient.username}',
+                        style: TextStyle(fontSize: 16)),
+                    Text('Email: ${patient.email}',
+                        style: TextStyle(fontSize: 16)),
+                    Text('Age: ${patient.age}', style: TextStyle(fontSize: 16)),
+                    Text('Gender: ${patient.sex}',
+                        style: TextStyle(fontSize: 16)),
+                    SizedBox(height: 20),
+
+                    // Appointment Details
+                    Text(
+                      'Appointment Details',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Doctor Dropdown
+                    FutureBuilder<List<Map<String, dynamic>>>(
+                      future: fetchDoctors(),
+                      builder: (context, doctorSnapshot) {
+                        if (doctorSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (doctorSnapshot.hasError) {
+                          return Text('Error fetching doctors');
+                        } else if (doctorSnapshot.hasData) {
+                          final doctorList = doctorSnapshot.data!;
+                          return buildDropdown<String>(
+                            hint: 'Select Doctor',
+                            value: selectedDoctorUid,
+                            items: doctorList
+                                .map((d) => d['uid'] as String)
+                                .toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedDoctorUid = newValue;
+                                selectedDoctorName = doctorList.firstWhere(
+                                    (d) => d['uid'] == newValue)['name'];
+                              });
+                            },
+                          );
+                        } else {
+                          return Text('No doctors available');
+                        }
+                      },
+                    ),
+                    SizedBox(height: 20),
+
+                    // Appointment Time
+                    TextField(
+                      controller: _appointmentTimeController,
+                      decoration: InputDecoration(
+                        labelText: 'Appointment Time (yyyy-mm-dd hh:mm)',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.datetime,
+                    ),
+                    SizedBox(height: 20),
+
+                    // Reason for Visit
+                    TextField(
+                      controller: _reasonForVisitController,
+                      decoration: InputDecoration(
+                        labelText: 'Reason for Visit',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Appointment Type Dropdown
+                    buildDropdown<String>(
+                      hint: 'Select Appointment Type',
+                      value: appointmentType,
+                      items: appointmentTypes,
+                      onChanged: (newValue) {
+                        setState(() {
+                          appointmentType = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 20),
+
+                    // Urgency Level Dropdown
+                    buildDropdown<String>(
+                      hint: 'Select Urgency Level',
+                      value: urgencyLevel,
+                      items: urgencyLevels,
+                      onChanged: (newValue) {
+                        setState(() {
+                          urgencyLevel = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 20),
+
+                    // Phone Number
+                    TextField(
+                      controller: _phoneNumberController,
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    SizedBox(height: 20),
+
+                    // Address
+                    TextField(
+                      controller: _addressController,
+                      decoration: InputDecoration(
+                        labelText: 'Address',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Book Appointment Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: Text('Book Appointment'),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Full Name'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _dobController,
-                  decoration: const InputDecoration(labelText: 'Date of Birth'),
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-                    if (pickedDate != null) {
-                      setState(() {
-                        _dobController.text =
-                            '${pickedDate.toLocal()}'.split(' ')[0];
-                      });
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select your date of birth';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _gender,
-                  decoration: const InputDecoration(labelText: 'Gender'),
-                  items: ['Male', 'Female']
-                      .map((label) => DropdownMenuItem<String>(
-                            value: label,
-                            child: Text(label),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _gender = value ?? 'Male';
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: const InputDecoration(labelText: 'Phone Number'),
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your phone number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email Address'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _addressController,
-                  decoration:
-                      const InputDecoration(labelText: 'Address (Optional)'),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Appointment Details',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _reasonController,
-                  decoration:
-                      const InputDecoration(labelText: 'Reason for Visit'),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _appointmentType,
-                  decoration:
-                      const InputDecoration(labelText: 'Type of Appointment'),
-                  items: [
-                    'General Checkup',
-                    'Specialist Consultation',
-                    'Emergency',
-                    'Follow-up',
-                    'Other'
-                  ]
-                      .map((label) => DropdownMenuItem<String>(
-                            value: label,
-                            child: Text(label),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _appointmentType = value ?? 'General Checkup';
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _doctorPreference,
-                  decoration:
-                      const InputDecoration(labelText: 'Doctor Preference'),
-                  items: ['Dr. John Doe', 'Dr. Jane Smith', 'Dr. Emily Brown']
-                      .map((label) => DropdownMenuItem<String>(
-                            value: label,
-                            child: Text(label),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _doctorPreference = value ?? 'Dr. John Doe';
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
-                // Appointment time field
-                TextFormField(
-                  controller: _appointmentTimeController,
-                  decoration:
-                      const InputDecoration(labelText: 'Appointment Time'),
-                  readOnly: true,
-                  onTap: () async {
-                    TimeOfDay? pickedTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                    );
-                    if (pickedTime != null) {
-                      setState(() {
-                        _appointmentTimeController.text =
-                            pickedTime.format(context);
-                      });
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select an appointment time';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _submitAppointment,
-                  child: const Text('Book Appointment'),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        } else {
+          return Scaffold(
+            appBar: AppBar(title: Text('Error')),
+            body: Center(child: Text('No data available')),
+          );
+        }
+      },
     );
   }
 }

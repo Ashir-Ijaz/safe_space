@@ -164,7 +164,7 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => PatientInfoScreen()),
+              MaterialPageRoute(builder: (context) => BookAppointmentPage()),
             );
           }
         },

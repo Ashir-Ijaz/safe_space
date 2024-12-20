@@ -176,18 +176,13 @@ class ProfileInfoSection extends StatelessWidget {
                 ProfileInfoRow(title: 'Age', value: doctor.age.toString()),
                 ProfileInfoRow(title: 'Sex', value: doctor.sex),
                 ProfileInfoRow(
-                    title: 'Phone Number', value: doctor.phonenumber ?? 'N/A'),
+                    title: 'Phone Number', value: doctor.phonenumber),
+                ProfileInfoRow(title: 'Clinic Name', value: doctor.clinicName),
                 ProfileInfoRow(
-                    title: 'Clinic Name', value: doctor.clinicName ?? 'N/A'),
-                ProfileInfoRow(
-                    title: 'Clinic Contact',
-                    value: doctor.contactNumberClinic ?? 'N/A'),
-                ProfileInfoRow(
-                    title: 'Fees', value: doctor.fees?.toString() ?? 'N/A'),
-                ProfileInfoRow(
-                    title: 'Doctor Type', value: doctor.doctorType ?? 'N/A'),
-                ProfileInfoRow(
-                    title: 'Experience', value: doctor.experience ?? '0'),
+                    title: 'Clinic Contact', value: doctor.contactNumberClinic),
+                ProfileInfoRow(title: 'Fees', value: doctor.fees.toString()),
+                ProfileInfoRow(title: 'Doctor Type', value: doctor.doctorType),
+                ProfileInfoRow(title: 'Experience', value: doctor.experience),
                 SizedBox(height: 20),
 
                 // Display Schedule Section
