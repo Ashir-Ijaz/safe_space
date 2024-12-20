@@ -1,12 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:safe_space/pages/viewprofile.dart';
 import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Petpatientprofile extends StatelessWidget {
-  // Adjustable height and width for the hospital slider
+class Petpatientprofile extends StatefulWidget {
+  @override
+  _PetpatientprofileState createState() => _PetpatientprofileState();
+}
+
+class _PetpatientprofileState extends State<Petpatientprofile> {
+  final User? user = FirebaseAuth.instance.currentUser;
   final double hospitalCardHeight =
       200; // You can change this value to any height you want
   final double hospitalCardWidth = 200; // Set your desired width
+
+  String petName = "Pet Name";
+  String age = "**";
+  String sex = "***";
+
+  @override
+  void initState() {
+    super.initState();
+    if (user != null) {
+      fetchProfileData(user!.uid);
+    }
+  }
+
+  Future<void> fetchProfileData(String uid) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('pets')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final data = querySnapshot.docs.first.data();
+        setState(() {
+          petName = data['name'] ?? "Pet Name";
+          age = data['age']?.toString() ?? "**";
+          sex = data['sex'] ?? "***";
+        });
+      }
+    } catch (e) {
+      // Error fetching profile; default values remain
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +90,14 @@ class Petpatientprofile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Pet Name',
+                      petName,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text('Age: **'),
-                    Text('Sex: ***'),
+                    Text('Age: $age'),
+                    Text('Sex: $sex'),
                   ],
                 ),
               ],
@@ -95,19 +134,16 @@ class Petpatientprofile extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 8),
-                // Use a Container for the ListView and set the height
                 Container(
-                  height:
-                      hospitalCardHeight, // Set the height of the hospital slider
+                  height: hospitalCardHeight,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 10, // Replace with your actual data count
+                    itemCount: 10,
                     itemBuilder: (context, index) {
                       return _buildHospitalCard(
                         'Hospital ${index + 1}',
                         height: hospitalCardHeight,
-                        width:
-                            150, // Keep the width constant or adjust if needed
+                        width: 150,
                       );
                     },
                   ),
@@ -121,20 +157,17 @@ class Petpatientprofile extends StatelessWidget {
         currentIndex: 0, // Highlight the current tab (Home as default)
         onTap: (index) {
           if (index == 3) {
-            // Check if the Menu icon is tapped
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ViewProfileScreen()),
             );
           } else if (index == 1) {
-            // Check if the Menu icon is tapped
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => PatientInfoScreen()),
             );
           }
         },
-
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

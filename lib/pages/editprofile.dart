@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safe_space/models/petpatient_db.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditPagePet extends StatefulWidget {
   @override
@@ -8,13 +9,13 @@ class EditPagePet extends StatefulWidget {
 }
 
 class _EditPagePetState extends State<EditPagePet> {
+  final User? user = FirebaseAuth.instance.currentUser;
   final _formKey = GlobalKey<FormState>();
 
   // Controllers for TextFormFields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   // final TextEditingController _bioController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _sexController = TextEditingController();
 
@@ -24,10 +25,45 @@ class _EditPagePetState extends State<EditPagePet> {
     _nameController.dispose();
     _usernameController.dispose();
     // _bioController.dispose();
-    _emailController.dispose();
     _ageController.dispose();
     _sexController.dispose();
     super.dispose();
+  }
+
+  Future<Map<String, dynamic>> fetchProfile(String uid) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('pets')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first.data() as Map<String, dynamic>;
+      } else {
+        throw Exception('Profile not found.');
+      }
+    } catch (e) {
+      throw Exception('Error fetching profile: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetch user data and populate controllers
+    if (user != null) {
+      fetchProfile(user!.uid).then((data) {
+        setState(() {
+          _nameController.text = data['name'] ?? '';
+          _usernameController.text = data['username'] ?? '';
+          _ageController.text = data['age']?.toString() ?? '';
+          _sexController.text = data['sex'] ?? '';
+        });
+      }).catchError((error) {
+        print('Error fetching profile: $error');
+      });
+    }
   }
 
   @override

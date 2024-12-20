@@ -1,6 +1,43 @@
+// import 'package:flutter/material.dart';
+// import 'package:safe_space/models/patients_db.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+// class EditPageHuman extends StatefulWidget {
+//   @override
+//   _EditPageState createState() => _EditPageState();
+// }
+
+// class _EditPageState extends State<EditPageHuman> {
+
+//   final _formKey = GlobalKey<FormState>();
+//   // Controllers for TextFormFields
+//   final TextEditingController _nameController = TextEditingController();
+//   final TextEditingController _usernameController = TextEditingController();
+//   final TextEditingController _bioController = TextEditingController();
+//   // final TextEditingController _emailController =
+//   //     TextEditingController(text: 'urviny@gmail.com');
+//   final TextEditingController _bloodgroupController = TextEditingController();
+//   final TextEditingController _ageController = TextEditingController();
+//   final TextEditingController _sexController = TextEditingController();
+
+//   @override
+//   void dispose() {
+//     // Clean up the controllers when the widget is disposed
+//     _nameController.dispose();
+//     _usernameController.dispose();
+//     _bioController.dispose();
+//     //_emailController.dispose();
+//     _bloodgroupController.dispose();
+//     _ageController.dispose();
+//     _sexController.dispose();
+//     super.dispose();
+//   }
+
 import 'package:flutter/material.dart';
 import 'package:safe_space/models/patients_db.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditPageHuman extends StatefulWidget {
   @override
@@ -8,23 +45,17 @@ class EditPageHuman extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPageHuman> {
+  final User? user = FirebaseAuth.instance.currentUser;
   final _formKey = GlobalKey<FormState>();
-
   // Controllers for TextFormFields
-  final TextEditingController _nameController =
-      TextEditingController(text: 'viny');
-  final TextEditingController _usernameController =
-      TextEditingController(text: 'urs_viny');
-  final TextEditingController _bioController =
-      TextEditingController(text: 'I Like you');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
   // final TextEditingController _emailController =
   //     TextEditingController(text: 'urviny@gmail.com');
-  final TextEditingController _bloodgroupController =
-      TextEditingController(text: 'AB+');
-  final TextEditingController _ageController =
-      TextEditingController(text: '20');
-  final TextEditingController _sexController =
-      TextEditingController(text: 'Female');
+  final TextEditingController _bloodgroupController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _sexController = TextEditingController();
 
   @override
   void dispose() {
@@ -37,6 +68,44 @@ class _EditPageState extends State<EditPageHuman> {
     _ageController.dispose();
     _sexController.dispose();
     super.dispose();
+  }
+
+  Future<Map<String, dynamic>> fetchProfile(String uid) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('humanpatients')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first.data() as Map<String, dynamic>;
+      } else {
+        throw Exception('Profile not found.');
+      }
+    } catch (e) {
+      throw Exception('Error fetching profile: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetch user data and populate controllers
+    if (user != null) {
+      fetchProfile(user!.uid).then((data) {
+        setState(() {
+          _nameController.text = data['name'] ?? '';
+          _usernameController.text = data['username'] ?? '';
+          _bioController.text = data['bio'] ?? '';
+          _bloodgroupController.text = data['bloodgroup'] ?? '';
+          _ageController.text = data['age']?.toString() ?? '';
+          _sexController.text = data['sex'] ?? '';
+        });
+      }).catchError((error) {
+        print('Error fetching profile: $error');
+      });
+    }
   }
 
   @override

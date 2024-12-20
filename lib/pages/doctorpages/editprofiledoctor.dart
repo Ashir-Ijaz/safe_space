@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:safe_space/models/doctors_db.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditPageDoctor extends StatefulWidget {
   @override
@@ -8,6 +9,7 @@ class EditPageDoctor extends StatefulWidget {
 }
 
 class _EditPageDoctorState extends State<EditPageDoctor> {
+  final User? user = FirebaseAuth.instance.currentUser;
   final _formKey = GlobalKey<FormState>();
 
   // Controllers for TextFormFields
@@ -45,6 +47,45 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
     _specializationController.dispose();
     _qualificationController.dispose();
     super.dispose();
+  }
+
+  Future<Map<String, dynamic>> fetchProfile(String uid) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('doctors')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first.data() as Map<String, dynamic>;
+      } else {
+        throw Exception('Profile not found.');
+      }
+    } catch (e) {
+      throw Exception('Error fetching profile: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetch user data and populate controllers
+    if (user != null) {
+      fetchProfile(user!.uid).then((data) {
+        setState(() {
+          _nameController.text = data['name'] ?? '';
+          _usernameController.text = data['username'] ?? '';
+          _ageController.text = data['age']?.toString() ?? '';
+          _sexController.text = data['sex'] ?? '';
+          _bioController.text = data['bio'] ?? '';
+          _specializationController.text = data['specialization'] ?? '';
+          _qualificationController.text = data['qualification'] ?? '';
+        });
+      }).catchError((error) {
+        print('Error fetching profile: $error');
+      });
+    }
   }
 
   @override

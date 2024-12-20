@@ -3,32 +3,55 @@ import 'package:safe_space/pages/viewprofilehuman.dart';
 import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:safe_space/models/patients_db.dart';
 
-class HumanPatientProfile extends StatelessWidget {
+class HumanPatientProfile extends StatefulWidget {
+  @override
+  _HumanPatientProfileState createState() => _HumanPatientProfileState();
+}
+
+class _HumanPatientProfileState extends State<HumanPatientProfile> {
+  final User? user = FirebaseAuth.instance.currentUser;
   // Adjustable height and width for the hospital slider
   final double hospitalCardHeight =
       200; // You can change this value to any height you want
   final double hospitalCardWidth = 200; // Set your desired width
 
-  static Future<PatientsDb> fetchProfile(String uid) async {
+  String patientName = "Patient Name";
+  String age = "**";
+  String sex = "***";
+
+  @override
+  void initState() {
+    super.initState();
+    if (user != null) {
+      fetchProfileData(user!.uid);
+    }
+  }
+
+  Future<void> fetchProfileData(String uid) async {
     try {
-      // Query the 'humanpatients' collection where 'uid' field matches the passed 'uid'
       final querySnapshot = await FirebaseFirestore.instance
           .collection('humanpatients')
           .where('uid', isEqualTo: uid)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        // If the document is found, return the first matching document as a PatientsDb instance
-        return PatientsDb.fromJson(
-            querySnapshot.docs.first.data() as Map<String, dynamic>);
-      } else {
-        throw Exception('Profile not found.');
+        final data = querySnapshot.docs.first.data();
+        setState(() {
+          patientName = data['name'] ?? "Patient Name";
+          age = data['age']?.toString() ?? "**";
+          sex = data['sex'] ?? "***";
+        });
       }
     } catch (e) {
-      throw Exception('Error fetching profile: $e');
+      // Error fetching profile; default values remain
     }
+  }
+
+  @override
+  void dispose() {
+    // Dispose of any controllers or listeners to avoid memory leaks
+    super.dispose();
   }
 
   @override
@@ -74,14 +97,14 @@ class HumanPatientProfile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Patient Name',
+                      patientName,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text('Age: **'),
-                    Text('Sex: ***'),
+                    Text(age),
+                    Text(sex),
                   ],
                 ),
               ],
