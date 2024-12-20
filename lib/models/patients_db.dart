@@ -83,7 +83,7 @@ class PatientsDb {
       print('Error saving/updating profile: $e');
     }
   }
-
+}
   // /// Fetch profile information from Firestore
   // static Future<PatientsDb> fetchProfile(String uid) async {
   //   try {
@@ -99,7 +99,7 @@ class PatientsDb {
   //     throw Exception('Error fetching profile: $e');
   //   }
   // }
-}
+
 
 // import 'dart:ffi';
 

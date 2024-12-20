@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/pages/patientpages/humandoctordetail.dart';
 import 'package:safe_space/pages/viewprofilehuman.dart';
 import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,20 +12,24 @@ class HumanPatientProfile extends StatefulWidget {
 
 class _HumanPatientProfileState extends State<HumanPatientProfile> {
   final User? user = FirebaseAuth.instance.currentUser;
-  // Adjustable height and width for the hospital slider
-  final double hospitalCardHeight =
-      200; // You can change this value to any height you want
-  final double hospitalCardWidth = 200; // Set your desired width
+
+  final double hospitalCardHeight = 200;
+  final double hospitalCardWidth = 200;
+  final double doctorCardHeight = 200;
+  final double doctorCardWidth = 200;
 
   String patientName = "Patient Name";
   String age = "**";
   String sex = "***";
+
+  List<Map<String, dynamic>> doctorList = [];
 
   @override
   void initState() {
     super.initState();
     if (user != null) {
       fetchProfileData(user!.uid);
+      fetchDoctors();
     }
   }
 
@@ -44,20 +49,36 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
         });
       }
     } catch (e) {
-      // Error fetching profile; default values remain
+      print("Error fetching profile: $e");
+    }
+  }
+
+  Future<void> fetchDoctors() async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('doctors').get();
+
+      final fetchedDoctors = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      setState(() {
+        doctorList = fetchedDoctors;
+      });
+    } catch (e) {
+      print("Error fetching doctors: $e");
     }
   }
 
   @override
   void dispose() {
-    // Dispose of any controllers or listeners to avoid memory leaks
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Background color
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('SAFE-SPACE'),
         centerTitle: true,
@@ -65,118 +86,162 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
         foregroundColor: Colors.black,
         elevation: 1,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[300],
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 15,
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.add,
+                            size: 20,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        patientName,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(age),
+                      Text(sex),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Divider(thickness: 1),
+            GridView.count(
+              padding: const EdgeInsets.all(16.0),
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               children: [
-                Stack(
+                _buildCard('Online Consultations', Icons.video_call),
+                _buildCard('In-clinic Appointment', Icons.local_hospital),
+              ],
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[300],
+                    Text(
+                      'Doctors',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        radius: 15,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.add,
-                          size: 20,
-                          color: Colors.black,
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HumanDoctorDetail(),
+                            ));
+                        // Handle the 'View All' button action here
+                        print("View All clicked");
+                      },
+                      child: Text(
+                        'View all',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      patientName,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(age),
-                    Text(sex),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
-          Divider(thickness: 1),
-          Expanded(
-            child: Column(
-              children: [
-                GridView.count(
-                  padding: const EdgeInsets.all(16.0),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  children: [
-                    _buildCard('Online Consultations', Icons.video_call),
-                    _buildCard('In-clinic Appointment', Icons.local_hospital),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Hospitals',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+            SizedBox(height: 8),
+            Container(
+              height: doctorCardHeight,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: doctorList.length,
+                itemBuilder: (context, index) {
+                  final doctor = doctorList[index];
+                  return _buildDoctorCard(
+                    name: doctor['name'] ?? 'Unknown',
+                    specialty:
+                        doctor['specialization'] ?? 'Specialty Not Available',
+                    experience: doctor['experience'] ?? '0',
+                    height: doctorCardHeight,
+                    width: doctorCardWidth,
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Hospitals',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8),
-                // Use a Container for the ListView and set the height
-                Container(
-                  height:
-                      hospitalCardHeight, // Set the height of the hospital slider
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 10, // Replace with your actual data count
-                    itemBuilder: (context, index) {
-                      return _buildHospitalCard(
-                        'Hospital ${index + 1}',
-                        height: hospitalCardHeight,
-                        width:
-                            150, // Keep the width constant or adjust if needed
-                      );
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 8),
+            Container(
+              height: hospitalCardHeight,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 10,
+                itemBuilder: (context, index) {
+                  return _buildHospitalCard(
+                    'Hospital ${index + 1}',
+                    height: hospitalCardHeight,
+                    width: 150,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0, // Highlight the current tab (Home as default)
+        currentIndex: 0,
         onTap: (index) {
           if (index == 3) {
-            // Check if the Menu icon is tapped
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ViewProfileHumanScreen() // Pass uid here
-                  ),
+              MaterialPageRoute(builder: (context) => ViewProfileHumanScreen()),
             );
           } else if (index == 1) {
-            // Check if the Menu icon is tapped
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => PatientInfoScreen()),
@@ -216,11 +281,7 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 40,
-            color: Colors.grey,
-          ),
+          Icon(icon, size: 40, color: Colors.grey),
           SizedBox(height: 8),
           Text(
             title,
@@ -231,6 +292,52 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDoctorCard({
+    required String name,
+    required String specialty,
+    required String experience,
+    required double height,
+    required double width,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 2,
+        child: Container(
+          height: height,
+          width: width,
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.person, size: 40, color: Colors.grey),
+              SizedBox(height: 8),
+              Text(
+                name,
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8),
+              Text(
+                specialty,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8),
+              Text(
+                '$experience years experience',
+                style: TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -251,11 +358,7 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.local_hospital,
-                size: 40,
-                color: Colors.grey,
-              ),
+              Icon(Icons.local_hospital, size: 40, color: Colors.grey),
               SizedBox(height: 8),
               Text(
                 hospitalName,

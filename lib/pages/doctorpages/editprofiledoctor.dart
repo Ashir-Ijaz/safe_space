@@ -22,6 +22,14 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _sexController = TextEditingController();
+  // New TextEditingControllers for additional fields
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _clinicNameController = TextEditingController();
+  final TextEditingController _contactNumberClinicController =
+      TextEditingController();
+  final TextEditingController _feesController = TextEditingController();
+  String _doctorType = "Human"; // Default value for the dropdown
+  final TextEditingController _experienceController = TextEditingController();
 
   // Variables for availability
   final Map<String, bool> _selectedDays = {
@@ -46,6 +54,11 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
     _sexController.dispose();
     _specializationController.dispose();
     _qualificationController.dispose();
+    _phoneNumberController.dispose();
+    _clinicNameController.dispose();
+    _contactNumberClinicController.dispose();
+    _feesController.dispose();
+    _experienceController.dispose();
     super.dispose();
   }
 
@@ -81,6 +94,13 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
           _bioController.text = data['bio'] ?? '';
           _specializationController.text = data['specialization'] ?? '';
           _qualificationController.text = data['qualification'] ?? '';
+          _phoneNumberController.text = data['phoneNumber'] ?? '';
+          _clinicNameController.text = data['clinicName'] ?? '';
+          _contactNumberClinicController.text =
+              data['contactNumberClinic'] ?? '';
+          _feesController.text = data['fees']?.toString() ?? '';
+          _doctorType = data['doctorType'] ?? 'Human';
+          _experienceController.text = data['experience'] ?? '';
         });
       }).catchError((error) {
         print('Error fetching profile: $error');
@@ -151,6 +171,25 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
                 // Available Days Field
                 _buildAvailableDaysField(context),
 
+                // New Fields
+                _buildTextField('Phone Number', _phoneNumberController,
+                    'Enter your phone number'),
+                _buildTextField(
+                    'Clinic Name', _clinicNameController, 'Enter clinic name'),
+                _buildTextField(
+                    'Clinic Contact Number',
+                    _contactNumberClinicController,
+                    'Enter clinic contact number'),
+                _buildTextField('Consultation Fees', _feesController,
+                    'Enter consultation fees'),
+                _buildDropdown(
+                    'Doctor Type',
+                    TextEditingController(text: _doctorType),
+                    ['Human', 'Veterinary']),
+
+                _buildTextField(
+                    'Experience', _experienceController, 'Years of experience'),
+
                 // Time Fields
                 _buildTimeSelector('Start Time', () async {
                   TimeOfDay? pickedTime = await showTimePicker(
@@ -206,6 +245,13 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
                             bio: _bioController.text,
                             age: int.tryParse(_ageController.text) ?? 0,
                             uid: user.uid,
+                            phonenumber: _phoneNumberController.text,
+                            clinicName: _clinicNameController.text,
+                            contactNumberClinic:
+                                _contactNumberClinicController.text,
+                            fees: double.tryParse(_feesController.text) ?? 0.0,
+                            doctorType: _doctorType,
+                            experience: _experienceController.text,
                             availableDays:
                                 selectedDaysList, // Pass selected days as List<String>
                             startTime:
