@@ -4,6 +4,7 @@ import 'package:safe_space/pages/viewprofilehuman.dart';
 import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:safe_space/pages/appointmentlistpage.dart';
 
 class HumanPatientProfile extends StatefulWidget {
   @override
@@ -141,8 +142,27 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
-                _buildCard('Online Consultations', Icons.video_call),
-                _buildCard('In-clinic Appointment', Icons.local_hospital),
+                _buildCard(
+                  title: 'Online Consultations',
+                  icon: Icons.video_call,
+                  onTap: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => OnlineConsultationPage()),
+                    // );
+                  },
+                ),
+                _buildCard(
+                  title: 'Book Appointment',
+                  icon: Icons.local_hospital,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => BookAppointmentPage()),
+                    );
+                  },
+                ),
               ],
             ),
             SizedBox(height: 16),
@@ -244,7 +264,7 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => BookAppointmentPage()),
+              MaterialPageRoute(builder: (context) => AppointmentsPage()),
             );
           }
         },
@@ -272,106 +292,112 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
     );
   }
 
-  Widget _buildCard(String title, IconData icon) {
-    return Card(
+  Widget _buildCard(
+      {required String title,
+      required IconData icon,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 2,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _buildDoctorCard({
+  required String name,
+  required String specialty,
+  required String experience,
+  required double height,
+  required double width,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    child: Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       elevation: 2,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: Colors.grey),
-          SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+      child: Container(
+        height: height,
+        width: width,
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person, size: 40, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              name,
+              style: TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            SizedBox(height: 8),
+            Text(
+              specialty,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              '$experience years experience',
+              style: TextStyle(fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildDoctorCard({
-    required String name,
-    required String specialty,
-    required String experience,
-    required double height,
-    required double width,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 2,
-        child: Container(
-          height: height,
-          width: width,
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.person, size: 40, color: Colors.grey),
-              SizedBox(height: 8),
-              Text(
-                name,
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+Widget _buildHospitalCard(String hospitalName,
+    {required double height, required double width}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    child: Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 2,
+      child: Container(
+        height: height,
+        width: width,
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.local_hospital, size: 40, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              hospitalName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
-              SizedBox(height: 8),
-              Text(
-                specialty,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 8),
-              Text(
-                '$experience years experience',
-                style: TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHospitalCard(String hospitalName,
-      {required double height, required double width}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 2,
-        child: Container(
-          height: height,
-          width: width,
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.local_hospital, size: 40, color: Colors.grey),
-              SizedBox(height: 8),
-              Text(
-                hospitalName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+    ),
+  );
 }

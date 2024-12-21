@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:safe_space/models/patients_db.dart';
-import 'package:safe_space/models/humanappointment_db.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
+import '../../models/patients_db.dart';
+import '../../models/bookappointment.dart';
+import '../../models/humanappointment_db.dart';
 
 class BookAppointmentPage extends StatefulWidget {
   @override
@@ -12,40 +14,33 @@ class BookAppointmentPage extends StatefulWidget {
 
 class _BookAppointmentPageState extends State<BookAppointmentPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  // Controllers
-  final TextEditingController _appointmentTimeController =
-      TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _reasonForVisitController =
       TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
-  // State Variables
   String? selectedDoctorUid;
-  String? selectedDoctorName;
   String? appointmentType;
   String? urgencyLevel;
+  String selectedDateAndTime = "None";
 
-  List<Map<String, dynamic>> doctors = [];
   final List<String> appointmentTypes = ['General', 'Specialist', 'Emergency'];
   final List<String> urgencyLevels = ['Normal', 'Urgent', 'Critical'];
 
   @override
   void dispose() {
-    _appointmentTimeController.dispose();
-    _phoneNumberController.dispose();
-    _addressController.dispose();
     _reasonForVisitController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
   }
 
-  // Fetch Doctors
   Future<List<Map<String, dynamic>>> fetchDoctors() async {
     try {
       QuerySnapshot snapshot = await _firestore.collection('doctors').get();
       return snapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((doc) => {
+                'uid': doc.id,
+                'username': doc['username'],
+              })
           .toList();
     } catch (e) {
       print("Error fetching doctors: $e");
@@ -53,10 +48,9 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     }
   }
 
-  // Fetch Patient Profile
   Future<PatientsDb> fetchProfile(String uid) async {
     try {
-      final querySnapshot = await FirebaseFirestore.instance
+      final querySnapshot = await _firestore
           .collection('humanpatients')
           .where('uid', isEqualTo: uid)
           .get();
@@ -72,19 +66,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     }
   }
 
-  // Check Slot Availability
-  // Future<bool> checkAvailability(
-  //     String doctorUid, DateTime appointmentTime) async {
-  //   try {
-  //     return await HumanAppointmentDb.checkAppointmentSlotAvailability(
-  //         doctorUid, appointmentTime);
-  //   } catch (e) {
-  //     print('Error checking slot availability: $e');
-  //     return false;
-  //   }
-  // }
-
-  // Create Dropdown
   Widget buildDropdown<T>({
     required String hint,
     required T? value,
@@ -104,59 +85,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
       }).toList(),
     );
   }
-
-  // Book Appointment
-  // Future<void> bookAppointment(PatientsDb patient) async {
-  //   try {
-  //     final doctorUid = selectedDoctorUid!;
-  //     final appointmentTime = DateTime.parse(_appointmentTimeController.text);
-  //     final phoneNumber = _phoneNumberController.text.trim();
-  //     final address = _addressController.text.trim();
-  //     final reason = _reasonForVisitController.text.trim().isNotEmpty
-  //         ? _reasonForVisitController.text.trim()
-  //         : 'Checkup';
-  //     final appointmentTypeSelected = appointmentType ?? 'General';
-  //     final urgency = urgencyLevel ?? 'Normal';
-  //     final doctorPreference = selectedDoctorName ?? 'None';
-
-  //     // Validate appointment time
-  //     if (appointmentTime.isBefore(DateTime.now())) {
-  //       throw Exception('Appointment time must be in the future.');
-  //     }
-
-  //     // Check slot availability
-  //     bool isAvailable = await checkAvailability(doctorUid, appointmentTime);
-  //     if (!isAvailable) {
-  //       throw Exception('Selected slot is not available.');
-  //     }
-
-  //     // Create the appointment
-  //     final appointment = HumanAppointmentDb(
-  //       appointmentId:
-  //           FirebaseFirestore.instance.collection('humanappointments').doc().id,
-  //       doctorUid: doctorUid,
-  //       patientUid: patient.uid,
-  //       username: patient.username,
-  //       email: patient.email,
-  //       gender: patient.sex,
-  //       phonenumber: phoneNumber,
-  //       address: address,
-  //       reasonforvisit: reason,
-  //       typeofappointment: appointmentTypeSelected,
-  //       doctorpreference: doctorPreference,
-  //       urgencylevel: urgency,
-  //       uid: patient.uid,
-  //       appointmentTime: appointmentTime,
-  //     );
-
-  //     await appointment.bookAppointment();
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Appointment booked successfully')));
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +122,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Patient Details
                     Text(
                       'Patient Details',
                       style: TextStyle(
@@ -211,8 +138,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                     Text('Gender: ${patient.sex}',
                         style: TextStyle(fontSize: 16)),
                     SizedBox(height: 20),
-
-                    // Appointment Details
                     Text(
                       'Appointment Details',
                       style: TextStyle(
@@ -221,8 +146,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                           color: Colors.blueAccent),
                     ),
                     SizedBox(height: 20),
-
-                    // Doctor Dropdown
                     FutureBuilder<List<Map<String, dynamic>>>(
                       future: fetchDoctors(),
                       builder: (context, doctorSnapshot) {
@@ -233,19 +156,21 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                           return Text('Error fetching doctors');
                         } else if (doctorSnapshot.hasData) {
                           final doctorList = doctorSnapshot.data!;
-                          return buildDropdown<String>(
-                            hint: 'Select Doctor',
+                          return DropdownButton<String>(
+                            hint: Text('Select Doctor'),
                             value: selectedDoctorUid,
-                            items: doctorList
-                                .map((d) => d['uid'] as String)
-                                .toList(),
+                            isExpanded: true,
                             onChanged: (newValue) {
                               setState(() {
                                 selectedDoctorUid = newValue;
-                                selectedDoctorName = doctorList.firstWhere(
-                                    (d) => d['uid'] == newValue)['name'];
                               });
                             },
+                            items: doctorList.map((doctor) {
+                              return DropdownMenuItem<String>(
+                                value: doctor['uid'],
+                                child: Text(doctor['username']),
+                              );
+                            }).toList(),
                           );
                         } else {
                           return Text('No doctors available');
@@ -253,19 +178,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                       },
                     ),
                     SizedBox(height: 20),
-
-                    // Appointment Time
-                    TextField(
-                      controller: _appointmentTimeController,
-                      decoration: InputDecoration(
-                        labelText: 'Appointment Time (yyyy-mm-dd hh:mm)',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.datetime,
-                    ),
-                    SizedBox(height: 20),
-
-                    // Reason for Visit
                     TextField(
                       controller: _reasonForVisitController,
                       decoration: InputDecoration(
@@ -274,8 +186,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Appointment Type Dropdown
                     buildDropdown<String>(
                       hint: 'Select Appointment Type',
                       value: appointmentType,
@@ -287,8 +197,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                       },
                     ),
                     SizedBox(height: 20),
-
-                    // Urgency Level Dropdown
                     buildDropdown<String>(
                       hint: 'Select Urgency Level',
                       value: urgencyLevel,
@@ -300,8 +208,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                       },
                     ),
                     SizedBox(height: 20),
-
-                    // Phone Number
                     TextField(
                       controller: _phoneNumberController,
                       decoration: InputDecoration(
@@ -311,22 +217,129 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                       keyboardType: TextInputType.phone,
                     ),
                     SizedBox(height: 20),
+                    Text(
+                      'Available Slots',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent),
+                    ),
+                    SizedBox(height: 20),
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Selected Slot:',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            selectedDateAndTime,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (selectedDoctorUid != null) {
+                                  final result = await navigateToDoctorSlots(
+                                      selectedDoctorUid!);
 
-                    // Address
-                    TextField(
-                      controller: _addressController,
-                      decoration: InputDecoration(
-                        labelText: 'Address',
-                        border: OutlineInputBorder(),
+                                  if (result != null) {
+                                    setState(() {
+                                      selectedDateAndTime =
+                                          '${result['day']} at ${result['time']}';
+                                    });
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text('Please select a doctor first.'),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text('Select Time Slot'),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Book Appointment Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          if (selectedDoctorUid != null &&
+                              appointmentType != null &&
+                              urgencyLevel != null &&
+                              _reasonForVisitController.text.isNotEmpty &&
+                              _phoneNumberController.text.isNotEmpty) {
+                            String? doctorName;
+                            try {
+                              final doctorDoc = await _firestore
+                                  .collection('doctors')
+                                  .doc(selectedDoctorUid)
+                                  .get();
+                              if (doctorDoc.exists) {
+                                doctorName = doctorDoc['username'];
+                              } else {
+                                throw Exception('Doctor not found');
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        'Error fetching doctor details: $e')),
+                              );
+                              return;
+                            }
+
+                            final appointmentData = HumanAppointmentDb(
+                              username: patient.username,
+                              age: patient.age.toString(),
+                              gender: patient.sex,
+                              email: patient.email,
+                              patientUid: user.uid,
+                              doctorUid: selectedDoctorUid!,
+                              reasonforvisit: _reasonForVisitController.text,
+                              typeofappointment: appointmentType!,
+                              urgencylevel: urgencyLevel!,
+                              phonenumber: _phoneNumberController.text,
+                              timeslot: selectedDateAndTime,
+                              uid: user.uid,
+                              appointmentId: generateAppointmentId(),
+                              doctorpreference: doctorName!,
+                            );
+
+                            await _firestore
+                                .collection('appointments')
+                                .add(appointmentData.toJson());
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Appointment Booked!')),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Please fill in all fields')),
+                            );
+                          }
+                        },
                         child: Text('Book Appointment'),
                       ),
                     ),
@@ -343,5 +356,26 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
         }
       },
     );
+  }
+
+  Future<Map<String, dynamic>?> navigateToDoctorSlots(String doctorId) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DoctorSlotsWidget(doctorId: doctorId),
+      ),
+    );
+
+    if (result != null) {
+      return result;
+    }
+    return null;
+  }
+
+  String generateAppointmentId() {
+    final random = Random();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final randomSuffix = random.nextInt(1000000); // Random 6-digit number
+    return '$timestamp-$randomSuffix'; // Combining timestamp and random suffix
   }
 }
