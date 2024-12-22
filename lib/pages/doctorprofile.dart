@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/pages/doctorpages/humandoctorappointmentlistpage.dart';
+import 'package:safe_space/pages/doctorpages/petdoctorappointmentlistpage.dart';
 import 'package:safe_space/pages/doctorpages/viewprofiledoctor.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,6 +19,7 @@ class _DoctorloginState extends State<Doctorlogin> {
   String doctorName = "Doctor Name";
   String specialization = "**";
   String qualification = "***";
+  String doctorType = '';
 
   @override
   void initState() {
@@ -39,6 +42,7 @@ class _DoctorloginState extends State<Doctorlogin> {
           doctorName = data['name'] ?? "Doctor's Name";
           specialization = data['specialization'] ?? "**";
           qualification = data['qualification'] ?? "***";
+          doctorType = data['doctorType'] ?? "";
         });
       }
     } catch (e) {
@@ -59,6 +63,22 @@ class _DoctorloginState extends State<Doctorlogin> {
           builder: (context) => ViewProfileDoctorScreen(),
         ),
       );
+    } else if (index == 1) {
+      if (doctorType == "Human") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Humandoctorappointmentlistpage(),
+          ),
+        );
+      } else if (doctorType == "Veterinary") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PetDoctorAppointmentsListPage(),
+          ),
+        );
+      }
     }
   }
 

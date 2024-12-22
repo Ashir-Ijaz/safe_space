@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-class HumanAppointmentDb {
+class PetAppointmentDb {
   String appointmentId;
   String doctorUid;
   String patientUid;
@@ -17,7 +17,7 @@ class HumanAppointmentDb {
   String age;
   String timeslot; // New field for selected timeslot
 
-  HumanAppointmentDb(
+  PetAppointmentDb(
       {required this.appointmentId,
       required this.doctorUid,
       required this.patientUid,
@@ -33,8 +33,8 @@ class HumanAppointmentDb {
       required this.timeslot,
       required this.age});
 
-  factory HumanAppointmentDb.fromJson(Map<String, Object?> json) {
-    return HumanAppointmentDb(
+  factory PetAppointmentDb.fromJson(Map<String, Object?> json) {
+    return PetAppointmentDb(
       appointmentId: json['appointmentId'] as String,
       doctorUid: json['doctorUid'] as String,
       patientUid: json['patientUid'] as String,
@@ -73,8 +73,7 @@ class HumanAppointmentDb {
 
   /// Function to save the appointment to Firestore
   Future<void> saveToFirestore() async {
-    final collection =
-        FirebaseFirestore.instance.collection('humanappointments');
+    final collection = FirebaseFirestore.instance.collection('petappointments');
 
     try {
       await collection.doc(appointmentId).set(toJson());

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:safe_space/models/humanappointment_db.dart';
-import 'package:safe_space/pages/patientpages/appointmentdetailpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AppointmentsPage extends StatefulWidget {
+class Humandoctorappointmentlistpage extends StatefulWidget {
   @override
-  _AppointmentsPageState createState() => _AppointmentsPageState();
+  _HumandoctorappointmentlistpageState createState() =>
+      _HumandoctorappointmentlistpageState();
 }
 
-class _AppointmentsPageState extends State<AppointmentsPage> {
+class _HumandoctorappointmentlistpageState
+    extends State<Humandoctorappointmentlistpage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
@@ -43,18 +43,18 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookAppointmentPage(),
-            ),
-          );
-        },
-        backgroundColor: Colors.teal,
-        child: Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) => BookAppointmentPage(),
+      //       ),
+      //     );
+      //   },
+      //   backgroundColor: Colors.teal,
+      //   child: Icon(Icons.add),
+      // ),
     );
   }
 
@@ -65,7 +65,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('appointments')
-          .where('uid', isEqualTo: user.uid)
+          .where('doctorUid', isEqualTo: user.uid)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
@@ -175,14 +175,14 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
               child: ElevatedButton(
                 onPressed: () {
                   // Navigate to the AppointmentDetailsPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AppointmentDetailsPage(
-                        appointment: appointment, // Pass appointment details
-                      ),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => AppointmentDetailsPage(
+                  //       appointment: appointment, // Pass appointment details
+                  //     ),
+                  //   ),
+                  // );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,

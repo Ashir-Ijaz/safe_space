@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_space/models/petappointment_db.dart';
+import 'package:safe_space/models/petpatient_db.dart';
 import 'dart:math';
-import '../../models/patients_db.dart';
 import '../../models/bookappointment.dart';
-import '../../models/humanappointment_db.dart';
 
-class BookAppointmentPage extends StatefulWidget {
+class BookAppointmentPetPage extends StatefulWidget {
   @override
-  _BookAppointmentPageState createState() => _BookAppointmentPageState();
+  _BookAppointmentPetPageState createState() => _BookAppointmentPetPageState();
 }
 
-class _BookAppointmentPageState extends State<BookAppointmentPage> {
+class _BookAppointmentPetPageState extends State<BookAppointmentPetPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _reasonForVisitController =
       TextEditingController();
@@ -37,29 +37,31 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('doctors')
-          .where('doctorType', isEqualTo: 'Human')
+          .where('doctorType', isEqualTo: 'Veterinary')
           .get();
-      return snapshot.docs
+      final doctors = snapshot.docs
           .map((doc) => {
                 'uid': doc.id,
                 'username': doc['username'],
               })
           .toList();
+      print('Fetched doctors: $doctors'); // Debugging
+      return doctors;
     } catch (e) {
       print("Error fetching doctors: $e");
       return [];
     }
   }
 
-  Future<PatientsDb> fetchProfile(String uid) async {
+  Future<PetpatientDb> fetchProfile(String uid) async {
     try {
       final querySnapshot = await _firestore
-          .collection('humanpatients')
+          .collection('pets')
           .where('uid', isEqualTo: uid)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        return PatientsDb.fromJson(
+        return PetpatientDb.fromJson(
             querySnapshot.docs.first.data() as Map<String, dynamic>);
       } else {
         throw Exception('Profile not found.');
@@ -95,12 +97,12 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Book Appointment')),
+        appBar: AppBar(title: Text('Book Appointment For Your Pet')),
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    return FutureBuilder<PatientsDb>(
+    return FutureBuilder<PetpatientDb>(
       future: fetchProfile(user.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -115,7 +117,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                 child: Text('Error fetching profile: ${snapshot.error}')),
           );
         } else if (snapshot.hasData) {
-          final patient = snapshot.data!;
+          final petpatient = snapshot.data!;
 
           return Scaffold(
             appBar: AppBar(title: Text('Book Appointment')),
@@ -126,19 +128,20 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Patient Details',
+                      'Pet Patient Details',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.blueAccent),
                     ),
                     SizedBox(height: 10),
-                    Text('Name: ${patient.username}',
+                    Text('Name: ${petpatient.username}',
                         style: TextStyle(fontSize: 16)),
-                    Text('Email: ${patient.email}',
+                    Text('Email: ${petpatient.email}',
                         style: TextStyle(fontSize: 16)),
-                    Text('Age: ${patient.age}', style: TextStyle(fontSize: 16)),
-                    Text('Gender: ${patient.sex}',
+                    Text('Age: ${petpatient.age}',
+                        style: TextStyle(fontSize: 16)),
+                    Text('Gender: ${petpatient.sex}',
                         style: TextStyle(fontSize: 16)),
                     SizedBox(height: 20),
                     Text(
@@ -312,11 +315,11 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                               return;
                             }
 
-                            final appointmentData = HumanAppointmentDb(
-                              username: patient.username,
-                              age: patient.age.toString(),
-                              gender: patient.sex,
-                              email: patient.email,
+                            final appointmentData = PetAppointmentDb(
+                              username: petpatient.username,
+                              age: petpatient.age.toString(),
+                              gender: petpatient.sex,
+                              email: petpatient.email,
                               patientUid: user.uid,
                               doctorUid: selectedDoctorUid!,
                               reasonforvisit: _reasonForVisitController.text,
@@ -330,7 +333,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                             );
 
                             await _firestore
-                                .collection('appointments')
+                                .collection('petappointments')
                                 .add(appointmentData.toJson());
 
                             ScaffoldMessenger.of(context).showSnackBar(

@@ -29,7 +29,8 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
   final TextEditingController _contactNumberClinicController =
       TextEditingController();
   final TextEditingController _feesController = TextEditingController();
-  String _doctorType = "Human"; // Default value for the dropdown
+  final TextEditingController _doctorTypeController = TextEditingController();
+  //String _doctorType = "Human"; // Default value for the dropdown
   final TextEditingController _experienceController = TextEditingController();
 
   // Variables for availability
@@ -60,6 +61,7 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
     _contactNumberClinicController.dispose();
     _feesController.dispose();
     _experienceController.dispose();
+    _doctorTypeController.dispose();
     super.dispose();
   }
 
@@ -100,7 +102,7 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
           _contactNumberClinicController.text =
               data['contactNumberClinic'] ?? '';
           _feesController.text = data['fees']?.toString() ?? '';
-          _doctorType = data['doctorType'] ?? 'Human';
+          _doctorTypeController.text = data['doctorType'] ?? 'Human';
           _experienceController.text = data['experience'] ?? '';
         });
       }).catchError((error) {
@@ -183,9 +185,7 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
                     'Enter clinic contact number'),
                 _buildTextField('Consultation Fees', _feesController,
                     'Enter consultation fees'),
-                _buildDropdown(
-                    'Doctor Type',
-                    TextEditingController(text: _doctorType),
+                _buildDropdown('Doctor Type', _doctorTypeController,
                     ['Human', 'Veterinary']),
 
                 _buildTextField(
@@ -251,7 +251,7 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
                             contactNumberClinic:
                                 _contactNumberClinicController.text,
                             fees: double.tryParse(_feesController.text) ?? 0.0,
-                            doctorType: _doctorType,
+                            doctorType: _doctorTypeController.text,
                             experience: _experienceController.text,
                             availableDays:
                                 selectedDaysList, // Pass selected days as List<String>

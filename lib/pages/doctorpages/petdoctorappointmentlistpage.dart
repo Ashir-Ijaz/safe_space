@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:safe_space/models/humanappointment_db.dart';
-import 'package:safe_space/pages/patientpages/appointmentdetailpage.dart';
+import 'package:safe_space/models/petappointment_db.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AppointmentsPage extends StatefulWidget {
+class PetDoctorAppointmentsListPage extends StatefulWidget {
   @override
-  _AppointmentsPageState createState() => _AppointmentsPageState();
+  _PetDoctorAppointmentsListPageState createState() =>
+      _PetDoctorAppointmentsListPageState();
 }
 
-class _AppointmentsPageState extends State<AppointmentsPage> {
+class _PetDoctorAppointmentsListPageState
+    extends State<PetDoctorAppointmentsListPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
@@ -20,7 +20,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         title: Text('My Appointments'),
         backgroundColor: Colors.teal,
       ),
-      body: FutureBuilder<List<HumanAppointmentDb>>(
+      body: FutureBuilder<List<PetAppointmentDb>>(
         future: _fetchAppointments(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -43,28 +43,28 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookAppointmentPage(),
-            ),
-          );
-        },
-        backgroundColor: Colors.teal,
-        child: Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) => BookAppointmentPetPage(),
+      //       ),
+      //     );
+      //   },
+      //   backgroundColor: Colors.teal,
+      //   child: Icon(Icons.add),
+      // ),
     );
   }
 
-  Future<List<HumanAppointmentDb>> _fetchAppointments() async {
+  Future<List<PetAppointmentDb>> _fetchAppointments() async {
     final User? user = _auth.currentUser;
     if (user == null) return [];
 
     try {
       final querySnapshot = await FirebaseFirestore.instance
-          .collection('appointments')
+          .collection('petappointments')
           .where('uid', isEqualTo: user.uid)
           .get();
 
@@ -73,7 +73,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
       }
 
       return querySnapshot.docs
-          .map((doc) => HumanAppointmentDb.fromJson(doc.data()))
+          .map((doc) => PetAppointmentDb.fromJson(doc.data()))
           .toList();
     } catch (e) {
       print("Error fetching appointments: $e");
@@ -81,7 +81,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     }
   }
 
-  Widget _buildCard(HumanAppointmentDb appointment, BuildContext context) {
+  Widget _buildCard(PetAppointmentDb appointment, BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width - 40,
       height: 200,
@@ -175,14 +175,14 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
               child: ElevatedButton(
                 onPressed: () {
                   // Navigate to the AppointmentDetailsPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AppointmentDetailsPage(
-                        appointment: appointment, // Pass appointment details
-                      ),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => PetAppointmentDetailsPage(
+                  //       appointment: appointment, // Pass appointment details
+                  //     ),
+                  //   ),
+                  // );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:safe_space/models/humanappointment_db.dart';
+import 'package:safe_space/models/petappointment_db.dart';
 import 'package:safe_space/pages/patientpages/appointmentdetailpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
+import 'package:safe_space/pages/patientpages/petappointmentbooking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:safe_space/pages/patientpages/petappointmentdetailpage.dart';
 
-class AppointmentsPage extends StatefulWidget {
+class PetAppointmentsListPage extends StatefulWidget {
   @override
-  _AppointmentsPageState createState() => _AppointmentsPageState();
+  _PetAppointmentsListPageState createState() =>
+      _PetAppointmentsListPageState();
 }
 
-class _AppointmentsPageState extends State<AppointmentsPage> {
+class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
@@ -20,7 +23,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         title: Text('My Appointments'),
         backgroundColor: Colors.teal,
       ),
-      body: FutureBuilder<List<HumanAppointmentDb>>(
+      body: FutureBuilder<List<PetAppointmentDb>>(
         future: _fetchAppointments(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -48,7 +51,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => BookAppointmentPage(),
+              builder: (context) => BookAppointmentPetPage(),
             ),
           );
         },
@@ -58,13 +61,13 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     );
   }
 
-  Future<List<HumanAppointmentDb>> _fetchAppointments() async {
+  Future<List<PetAppointmentDb>> _fetchAppointments() async {
     final User? user = _auth.currentUser;
     if (user == null) return [];
 
     try {
       final querySnapshot = await FirebaseFirestore.instance
-          .collection('appointments')
+          .collection('petappointments')
           .where('uid', isEqualTo: user.uid)
           .get();
 
@@ -73,7 +76,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
       }
 
       return querySnapshot.docs
-          .map((doc) => HumanAppointmentDb.fromJson(doc.data()))
+          .map((doc) => PetAppointmentDb.fromJson(doc.data()))
           .toList();
     } catch (e) {
       print("Error fetching appointments: $e");
@@ -81,7 +84,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     }
   }
 
-  Widget _buildCard(HumanAppointmentDb appointment, BuildContext context) {
+  Widget _buildCard(PetAppointmentDb appointment, BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width - 40,
       height: 200,
@@ -178,7 +181,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AppointmentDetailsPage(
+                      builder: (context) => PetAppointmentDetailsPage(
                         appointment: appointment, // Pass appointment details
                       ),
                     ),

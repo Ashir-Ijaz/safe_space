@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:safe_space/models/humanappointment_db.dart';
 
 class DoctorsDb {
   String name;
