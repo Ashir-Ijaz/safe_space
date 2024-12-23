@@ -330,6 +330,7 @@ class _BookAppointmentPetPageState extends State<BookAppointmentPetPage> {
                               uid: user.uid,
                               appointmentId: generateAppointmentId(),
                               doctorpreference: doctorName!,
+                              status: false,
                             );
 
                             await _firestore

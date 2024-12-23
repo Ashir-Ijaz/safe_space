@@ -39,13 +39,13 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundColor: Colors.blue.shade100,
+              backgroundColor: const Color.fromARGB(255, 75, 137, 122),
               child: Text(
                 doctor['name'] != null ? doctor['name'][0].toUpperCase() : 'D',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+                  color: const Color.fromARGB(255, 2, 93, 98),
                 ),
               ),
             ),
@@ -64,7 +64,8 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
                   SizedBox(height: 8.0),
                   Row(
                     children: [
-                      Icon(Icons.medical_services, color: Colors.blue),
+                      Icon(Icons.medical_services,
+                          color: const Color.fromARGB(255, 2, 93, 98)),
                       SizedBox(width: 8.0),
                       Text(
                         doctor['specialization'] ?? 'Specialization',
@@ -75,7 +76,8 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
                   SizedBox(height: 8.0),
                   Row(
                     children: [
-                      Icon(Icons.location_on, color: Colors.blue),
+                      Icon(Icons.location_on,
+                          color: const Color.fromARGB(255, 2, 93, 98)),
                       SizedBox(width: 8.0),
                       Flexible(
                         child: Text(
@@ -103,9 +105,12 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
                         );
                       },
                       icon: Icon(Icons.info, color: Colors.white),
-                      label: Text('View Details'),
+                      label: Text(
+                        'View Details',
+                        style: TextStyle(color: Colors.white),
+                      ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -153,7 +158,7 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
               margin: EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
                 color: selectedCategory == category
-                    ? Colors.blue
+                    ? const Color.fromARGB(255, 2, 93, 98)
                     : Colors.grey[300],
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -182,7 +187,7 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
       appBar: AppBar(
         title: Text('Doctor Details'),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
       ),
       body: Column(
         children: [

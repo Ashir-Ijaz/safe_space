@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 
 class HumanAppointmentDb {
   String appointmentId;
@@ -16,40 +15,43 @@ class HumanAppointmentDb {
   String uid;
   String age;
   String timeslot; // New field for selected timeslot
+  bool? status;
 
-  HumanAppointmentDb(
-      {required this.appointmentId,
-      required this.doctorUid,
-      required this.patientUid,
-      required this.username,
-      required this.email,
-      required this.gender,
-      required this.phonenumber,
-      required this.reasonforvisit,
-      required this.typeofappointment,
-      required this.doctorpreference,
-      required this.urgencylevel,
-      required this.uid,
-      required this.timeslot,
-      required this.age});
+  HumanAppointmentDb({
+    required this.appointmentId,
+    required this.doctorUid,
+    required this.patientUid,
+    required this.username,
+    required this.email,
+    required this.gender,
+    required this.phonenumber,
+    required this.reasonforvisit,
+    required this.typeofappointment,
+    required this.doctorpreference,
+    required this.urgencylevel,
+    required this.uid,
+    required this.timeslot,
+    required this.age,
+    required this.status,
+  });
 
   factory HumanAppointmentDb.fromJson(Map<String, Object?> json) {
     return HumanAppointmentDb(
-      appointmentId: json['appointmentId'] as String,
-      doctorUid: json['doctorUid'] as String,
-      patientUid: json['patientUid'] as String,
-      username: json['username'] as String,
-      email: json['email'] as String,
-      gender: json['gender'] as String,
-      phonenumber: json['phonenumber'] as String,
-      reasonforvisit: json['reasonforvisit'] as String,
-      typeofappointment: json['typeofappointment'] as String,
-      doctorpreference: json['doctorpreference'] as String,
-      urgencylevel: json['urgencylevel'] as String,
-      uid: json['uid'] as String,
-      age: json['age'] as String,
-      timeslot: (json['timeslot'] as String),
-    );
+        appointmentId: json['appointmentId'] as String,
+        doctorUid: json['doctorUid'] as String,
+        patientUid: json['patientUid'] as String,
+        username: json['username'] as String,
+        email: json['email'] as String,
+        gender: json['gender'] as String,
+        phonenumber: json['phonenumber'] as String,
+        reasonforvisit: json['reasonforvisit'] as String,
+        typeofappointment: json['typeofappointment'] as String,
+        doctorpreference: json['doctorpreference'] as String,
+        urgencylevel: json['urgencylevel'] as String,
+        uid: json['uid'] as String,
+        age: json['age'] as String,
+        timeslot: (json['timeslot'] as String),
+        status: json['status'] == null ? false : json['status'] as bool);
   }
 
   Map<String, Object?> toJson() {
@@ -68,6 +70,7 @@ class HumanAppointmentDb {
       'uid': uid,
       'age': age,
       'timeslot': timeslot,
+      'status': status
     };
   }
 

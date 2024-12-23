@@ -17,8 +17,12 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Appointments'),
-        backgroundColor: Colors.teal,
+        title: Text(
+          'My Appointments',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+        foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<HumanAppointmentDb>>(
         future: _fetchAppointments(),
@@ -52,8 +56,11 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
             ),
           );
         },
-        backgroundColor: Colors.teal,
-        child: Icon(Icons.add),
+        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -90,7 +97,10 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
-          colors: [Colors.teal.shade100, Colors.teal.shade50],
+          colors: [
+            const Color.fromARGB(255, 2, 93, 98),
+            const Color.fromARGB(255, 177, 181, 181)
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -117,23 +127,26 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.teal.shade700,
+                    color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
                 Text(
                   appointment.appointmentId,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.black87,
+                    color: const Color.fromARGB(221, 255, 255, 255),
                   ),
                 ),
               ],
             ),
-            Divider(thickness: 1, color: Colors.teal.shade200, height: 20),
+            Divider(
+                thickness: 1,
+                color: const Color.fromARGB(255, 2, 93, 98),
+                height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.person, color: Colors.teal, size: 18),
+                Icon(Icons.person, color: Colors.white, size: 18),
                 SizedBox(width: 5),
                 Expanded(
                   child: Text(
@@ -141,7 +154,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: const Color.fromARGB(221, 255, 255, 255),
                     ),
                   ),
                 ),
@@ -149,22 +162,27 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
             ),
             Row(
               children: [
-                Icon(Icons.watch_later, color: Colors.teal, size: 18),
+                Icon(Icons.watch_later, color: Colors.white, size: 18),
                 SizedBox(width: 5),
                 Text(
                   appointment.timeslot,
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: const Color.fromARGB(221, 255, 255, 255)),
                 ),
               ],
             ),
             Row(
               children: [
-                Icon(Icons.description, color: Colors.teal, size: 18),
+                Icon(Icons.description, color: Colors.white, size: 18),
                 SizedBox(width: 5),
                 Expanded(
                   child: Text(
                     appointment.reasonforvisit,
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: const Color.fromRGBO(255, 255, 255, 1)),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -185,7 +203,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: const Color.fromARGB(255, 2, 93, 98),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -193,7 +211,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                 ),
                 child: Text(
                   'View Details',
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
             ),

@@ -35,7 +35,8 @@ class PatientLogin extends StatelessWidget {
                   print("Human button clicked!");
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal, // Button color
+                  backgroundColor:
+                      const Color.fromARGB(255, 2, 93, 98), // Button color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -62,7 +63,8 @@ class PatientLogin extends StatelessWidget {
                   print("Pet button clicked!");
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent, // Button color
+                  backgroundColor:
+                      const Color.fromARGB(255, 250, 160, 43), // Button color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
