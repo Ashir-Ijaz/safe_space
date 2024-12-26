@@ -23,6 +23,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         ),
         backgroundColor: const Color.fromARGB(255, 2, 93, 98),
         foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: FutureBuilder<List<HumanAppointmentDb>>(
         future: _fetchAppointments(),

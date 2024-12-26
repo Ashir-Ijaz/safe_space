@@ -9,6 +9,13 @@ class ViewProfileApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Edit Profile',
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(fontSize: 16),
+          bodyMedium: TextStyle(fontSize: 14, color: Colors.grey[700]),
+        ),
+      ),
       home: ViewProfileHumanScreen(),
     );
   }
@@ -19,17 +26,21 @@ class ViewProfileHumanScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text(
+          'Profile',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        // Prevent pixel overflow issues
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 20), // Adds spacing
+              SizedBox(height: 20),
               ProfilePhoto(),
               SizedBox(height: 30),
               ProfileInfoSection(),
@@ -44,45 +55,37 @@ class ViewProfileHumanScreen extends StatelessWidget {
 class ProfilePhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double imageSize =
-        MediaQuery.of(context).size.width * 0.4; // Adjust for screen size
-
     return Column(
       children: [
         Container(
-          height: 120, // Suitable height for a profile picture
-          width: 120, // Suitable width for a profile picture
+          height: 120,
+          width: 120,
           decoration: BoxDecoration(
-            shape: BoxShape.circle, // Circular shape for the profile picture
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+            ],
             image: DecorationImage(
-              image:
-                  AssetImage('assets/images/one.jpg'), // Profile picture asset
-              fit: BoxFit.cover, // Ensure the image covers the container
-            ),
-            color: Colors.grey[300], // Placeholder background color
-          ),
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: Container(
-              height: 35, // Size for the small circular camera icon
-              width: 35,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black
-                    .withOpacity(0.6), // Semi-transparent background
-              ),
-              child: Icon(
-                Icons.camera_alt,
-                size: 20, // Size of the camera icon
-                color: Colors.white,
-              ),
+              image: AssetImage('assets/images/one.jpg'),
+              fit: BoxFit.cover,
             ),
           ),
         ),
         SizedBox(height: 10),
-        Text(
-          'Change photo',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        TextButton.icon(
+          onPressed: () {},
+          icon: Icon(Icons.camera_alt,
+              color: const Color.fromARGB(255, 2, 93, 98)),
+          label: Text(
+            'Change Photo',
+            style: TextStyle(
+                color: const Color.fromARGB(255, 2, 93, 98),
+                fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );
@@ -90,7 +93,6 @@ class ProfilePhoto extends StatelessWidget {
 }
 
 class ProfileInfoSection extends StatelessWidget {
-  // Fetch the profile using the user's UID
   Future<PatientsDb> fetchProfile(String uid) async {
     try {
       final querySnapshot = await FirebaseFirestore.instance
@@ -113,92 +115,51 @@ class ProfileInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
 
-    // Return a widget showing the profile only if user is authenticated
     if (user == null) {
       return Center(child: CircularProgressIndicator());
     }
 
-    // Use a FutureBuilder to handle the async fetchProfile call
     return FutureBuilder<PatientsDb>(
       future: fetchProfile(user.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show loading indicator while waiting for data
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // Navigate to EditProfilePage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditPageHuman()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 40, vertical: 15), // Button size
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded corners
-                ),
-                backgroundColor: Colors.black, // Button color
-              ),
-              child: Text(
-                'Create Profile',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white, // Text color
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          );
-
-          // Handle errors if fetching fails
-          // return Center(child: Text('Error: ${snapshot.error}'));
+          return ErrorButton();
         } else if (!snapshot.hasData) {
-          // Handle case where no data is returned
           return Center(child: Text('Profile not found.'));
         } else {
-          // If data is fetched successfully, display the profile
-          final patient = snapshot.data!; // PatientsDb instance
+          final patient = snapshot.data!;
 
           return Column(
             children: [
-              SizedBox(height: 20),
-              ProfileInfoRow(title: 'Name', value: patient.name),
-              ProfileInfoRow(title: 'Username', value: patient.username),
-              ProfileInfoRow(
-                  title: 'Age', value: patient.age.toString()), // Added age
-              ProfileInfoRow(title: 'Sex', value: patient.sex), // Added sex
-              ProfileInfoRow(title: 'Blood-Group', value: patient.bloodgroup),
-              ProfileInfoRow(
-                  title: 'Email', value: patient.email, isGreyed: true),
-              SizedBox(height: 50),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to EditProfilePage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => EditPageHuman()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    backgroundColor: Colors.black,
+              ProfileInfoCard(title: 'Name', value: patient.name),
+              ProfileInfoCard(title: 'Username', value: patient.username),
+              ProfileInfoCard(title: 'Age', value: patient.age.toString()),
+              ProfileInfoCard(title: 'Sex', value: patient.sex),
+              ProfileInfoCard(title: 'Blood Group', value: patient.bloodgroup),
+              ProfileInfoCard(title: 'Email', value: patient.email),
+              SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditPageHuman()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                    'Edit',
-                    style: TextStyle(
+                ),
+                child: Text(
+                  'Edit Profile',
+                  style: TextStyle(
                       fontSize: 16,
-                      color: Colors.white,
                       fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                      color: Colors.white),
                 ),
               ),
             ],
@@ -209,37 +170,66 @@ class ProfileInfoSection extends StatelessWidget {
   }
 }
 
-class ProfileInfoRow extends StatelessWidget {
+class ProfileInfoCard extends StatelessWidget {
   final String title;
   final String value;
   final bool isGreyed;
 
-  ProfileInfoRow(
+  ProfileInfoCard(
       {required this.title, required this.value, this.isGreyed = false});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey[600]),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: isGreyed ? Colors.grey : Colors.black,
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w800),
             ),
-          ),
-        ],
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isGreyed ? Colors.black : Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ErrorButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => EditPageHuman()),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      child: Text(
+        'Create Profile',
+        style: TextStyle(
+            fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
   }

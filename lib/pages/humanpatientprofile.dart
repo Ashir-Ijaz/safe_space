@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_space/pages/chatpages/Home_page.dart';
 import 'package:safe_space/pages/patientpages/humandoctordetail.dart';
 import 'package:safe_space/pages/viewprofilehuman.dart';
 import 'package:safe_space/pages/patientpages/appointmentbooking.dart';
@@ -283,6 +284,11 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => AppointmentsPage()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
             );
           }
         },

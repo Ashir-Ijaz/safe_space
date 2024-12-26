@@ -9,6 +9,10 @@ class ViewProfileApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Edit Profile',
+      theme: ThemeData(
+        primaryColor: Colors.teal,
+        scaffoldBackgroundColor: Colors.grey[100],
+      ),
       home: ViewProfileDoctorScreen(),
     );
   }
@@ -19,17 +23,22 @@ class ViewProfileDoctorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        title: Text(
+          'Profile',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
-        // Prevent pixel overflow issues
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 20), // Adds spacing
+              SizedBox(height: 20),
               ProfilePhoto(),
               SizedBox(height: 30),
               ProfileInfoSection(),
@@ -44,45 +53,41 @@ class ViewProfileDoctorScreen extends StatelessWidget {
 class ProfilePhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double imageSize =
-        MediaQuery.of(context).size.width * 0.4; // Adjust for screen size
+    double imageSize = MediaQuery.of(context).size.width * 0.4;
 
     return Column(
       children: [
         Container(
-          height: 120, // Suitable height for a profile picture
-          width: 120, // Suitable width for a profile picture
+          height: 120,
+          width: 120,
           decoration: BoxDecoration(
-            shape: BoxShape.circle, // Circular shape for the profile picture
+            shape: BoxShape.circle,
             image: DecorationImage(
-              image:
-                  AssetImage('assets/images/one.jpg'), // Profile picture asset
-              fit: BoxFit.cover, // Ensure the image covers the container
+              image: AssetImage('assets/images/one.jpg'),
+              fit: BoxFit.cover,
             ),
-            color: Colors.grey[300], // Placeholder background color
-          ),
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: Container(
-              height: 35, // Size for the small circular camera icon
-              width: 35,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black
-                    .withOpacity(0.6), // Semi-transparent background
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                blurRadius: 10,
+                spreadRadius: 2,
               ),
-              child: Icon(
-                Icons.camera_alt,
-                size: 20, // Size of the camera icon
-                color: Colors.white,
-              ),
-            ),
+            ],
           ),
         ),
         SizedBox(height: 10),
-        Text(
-          'Change photo',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        GestureDetector(
+          onTap: () {
+            // Add functionality for changing photo
+          },
+          child: Text(
+            'Change photo',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.teal,
+            ),
+          ),
         ),
       ],
     );
@@ -112,58 +117,52 @@ class ProfileInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
 
-    // Return a widget showing the profile only if user is authenticated
     if (user == null) {
       return Center(child: CircularProgressIndicator());
     }
 
-    // Use a FutureBuilder to handle the async fetchProfile call
     return FutureBuilder<DoctorsDb>(
-        future: fetchProfile(user.uid),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show loading indicator while waiting for data
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            // Handle errors if fetching fails
-            return Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to EditProfilePage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditPageDoctor()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 40, vertical: 15), // Button size
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), // Rounded corners
-                  ),
-                  backgroundColor: Colors.black, // Button color
+      future: fetchProfile(user.uid),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditPageDoctor()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  'Create Profile',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white, // Text color
-                    fontWeight: FontWeight.bold,
-                  ),
+                backgroundColor: Colors.teal,
+              ),
+              child: Text(
+                'Create Profile',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            );
-          } else if (!snapshot.hasData) {
-            // Handle case where no data is returned
-            return Center(child: Text('Profile not found.'));
-          } else {
-            // If data is fetched successfully, display the profile
-            final doctor = snapshot.data!; // DoctorsDb instance
-            return Column(
+            ),
+          );
+        } else if (!snapshot.hasData) {
+          return Center(child: Text('Profile not found.'));
+        } else {
+          final doctor = snapshot.data!;
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            //padding: EdgeInsets.all(20),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 20,
-                ),
                 ProfileInfoRow(title: 'Name', value: doctor.name),
                 ProfileInfoRow(title: 'Username', value: doctor.username),
                 ProfileInfoRow(
@@ -175,62 +174,10 @@ class ProfileInfoSection extends StatelessWidget {
                     title: 'Email', value: doctor.email, isGreyed: true),
                 ProfileInfoRow(title: 'Age', value: doctor.age.toString()),
                 ProfileInfoRow(title: 'Sex', value: doctor.sex),
-                ProfileInfoRow(
-                    title: 'Phone Number', value: doctor.phonenumber),
-                ProfileInfoRow(title: 'Clinic Name', value: doctor.clinicName),
-                ProfileInfoRow(
-                    title: 'Clinic Contact', value: doctor.contactNumberClinic),
-                ProfileInfoRow(title: 'Fees', value: doctor.fees.toString()),
-                ProfileInfoRow(title: 'Doctor Type', value: doctor.doctorType),
-                ProfileInfoRow(title: 'Experience', value: doctor.experience),
                 SizedBox(height: 20),
-
-                // Display Schedule Section
-                if (doctor.availableDays != null &&
-                    doctor.availableDays!.isNotEmpty)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Availability:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: Text(
-                          'Available Days: ${doctor.availableDays!.join(', ')}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      if (doctor.startTime != null && doctor.endTime != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          child: Text(
-                            'Working Hours: ${doctor.startTime} - ${doctor.endTime}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-
-                SizedBox(
-                  height: 50,
-                ),
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigate to EditProfilePage
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -238,28 +185,30 @@ class ProfileInfoSection extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 15), // Button size
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(8), // Rounded corners
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      backgroundColor: Colors.black, // Button color
+                      backgroundColor: Colors.teal,
                     ),
                     child: Text(
-                      'Edit',
+                      'Edit Profile',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white, // Text color
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
+                SizedBox(height: 20)
               ],
-            );
-          }
-        });
+            ),
+          );
+        }
+      },
+    );
   }
 }
 
@@ -273,27 +222,32 @@ class ProfileInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey[600]),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: isGreyed ? Colors.grey : Colors.black,
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w800),
             ),
-          ),
-        ],
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isGreyed ? Colors.black : Colors.grey,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

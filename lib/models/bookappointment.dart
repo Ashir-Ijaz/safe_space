@@ -43,43 +43,54 @@ class _DoctorSlotsWidgetState extends State<DoctorSlotsWidget> {
         final day = entry.key;
         final slotList = entry.value as List<dynamic>;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 8),
-            Text(
-              day,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blueAccent,
-              ),
-            ),
-            SizedBox(height: 12),
-            ...slotList.map((slot) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 10),
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  day,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 2, 93, 98),
+                  ),
+                ),
+                SizedBox(height: 12),
+                ...slotList.map((slot) {
+                  final isBooked = slot['booked'] as bool;
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      isBooked ? Icons.lock : Icons.check_circle,
+                      color: isBooked ? Colors.red : Colors.green,
+                    ),
+                    title: Text(
                       DateFormat('hh:mm a')
                           .format(DateTime.parse(slot['time'])),
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
-                    ),
-                    Text(
-                      slot['booked'] ? 'Booked' : 'Free',
                       style: TextStyle(
                         fontSize: 16,
-                        color: slot['booked'] ? Colors.red : Colors.green,
+                        color: Colors.black87,
                       ),
                     ),
-                  ],
-                ),
-              );
-            }).toList(),
-            Divider(color: Colors.grey),
-          ],
+                    trailing: Text(
+                      isBooked ? 'Booked' : 'Free',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: isBooked ? Colors.red : Colors.green,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
         );
       }).toList(),
     );
@@ -92,7 +103,13 @@ class _DoctorSlotsWidgetState extends State<DoctorSlotsWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select Appointment Day'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Text(
+            'Select Appointment Day',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           content: SingleChildScrollView(
             child: ListBody(
               children: availableDays.map((day) {
@@ -103,7 +120,10 @@ class _DoctorSlotsWidgetState extends State<DoctorSlotsWidget> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(day),
+                    child: Text(
+                      day,
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
                   ),
                 );
               }).toList(),
@@ -122,6 +142,88 @@ class _DoctorSlotsWidgetState extends State<DoctorSlotsWidget> {
 
     final slotsByDay = slotsData['slots'] as Map<String, dynamic>;
     return slotsByDay.keys.toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Doctor Availability',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: FutureBuilder<Map<String, dynamic>?>(
+        future: doctorSlots,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error, color: Colors.red, size: 60),
+                  SizedBox(height: 10),
+                  Text(
+                    'Error fetching doctor slots',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.event_busy, color: Colors.grey, size: 60),
+                  SizedBox(height: 10),
+                  Text(
+                    'No slots available.',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final slots = snapshot.data!['slots'] ?? {};
+          return Column(
+            children: [
+              Expanded(child: buildSlotList(slots)),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: ElevatedButton(
+                    onPressed: _showDaySelectionDialog,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 60),
+                      backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      'Select Time',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          );
+        },
+      ),
+    );
   }
 
   void _showSlotSelectionDialog(String selectedDay) async {
@@ -163,6 +265,26 @@ class _DoctorSlotsWidgetState extends State<DoctorSlotsWidget> {
               }).toList(),
             ),
           ),
+        );
+      },
+    );
+  }
+
+  void _showNoSlotsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('No Slots Available'),
+          content: Text('Sorry, there are no available slots for booking.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
         );
       },
     );
@@ -227,13 +349,14 @@ class _DoctorSlotsWidgetState extends State<DoctorSlotsWidget> {
     }
   }
 
-  void _showNoSlotsDialog() {
+  void _showBookingErrorDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('No Slots Available'),
-          content: Text('Sorry, there are no available slots for booking.'),
+          title: Text('Booking Failed'),
+          content: Text(
+              'An error occurred while booking the slot. Please try again later.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -286,78 +409,6 @@ class _DoctorSlotsWidgetState extends State<DoctorSlotsWidget> {
           ],
         );
       },
-    );
-  }
-
-  void _showBookingErrorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Booking Failed'),
-          content: Text(
-              'An error occurred while booking the slot. Please try again later.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Doctor Availability'),
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: FutureBuilder<Map<String, dynamic>?>(
-        future: doctorSlots,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error fetching doctor slots'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No slots available.'));
-          }
-
-          final slots = snapshot.data!['slots'] ?? {};
-          return Column(
-            children: [
-              Expanded(
-                  child: buildSlotList(
-                      slots)), // Makes the slot list take remaining space
-              Align(
-                alignment:
-                    Alignment.bottomCenter, // Align the button to the bottom
-                child: Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child: ElevatedButton(
-                    onPressed: _showDaySelectionDialog,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity,
-                          60), // Increase the height and make it full width
-                      textStyle: TextStyle(
-                          fontSize: 18), // Optional: Increase the font size
-                    ),
-                    child: Text('Select Time'),
-                  ),
-                ),
-              )
-            ],
-          );
-        },
-      ),
     );
   }
 }

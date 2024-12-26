@@ -39,7 +39,7 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundColor: const Color.fromARGB(255, 75, 137, 122),
+              backgroundColor: const Color.fromARGB(255, 172, 209, 200),
               child: Text(
                 doctor['name'] != null ? doctor['name'][0].toUpperCase() : 'D',
                 style: TextStyle(
@@ -185,9 +185,13 @@ class _HumanDoctorDetailState extends State<HumanDoctorDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Doctor Details'),
+        title: Text(
+          'Doctor Details',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:safe_space/models/humanappointment_db.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:safe_space/pages/patientpages/appointmentdetailpage.dart';
 
 class Humandoctorappointmentlistpage extends StatefulWidget {
   @override
@@ -17,8 +18,13 @@ class _HumandoctorappointmentlistpageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Appointments'),
+        title: Text(
+          'My Appointments',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: FutureBuilder<List<HumanAppointmentDb>>(
         future: _fetchAppointments(),
@@ -175,14 +181,14 @@ class _HumandoctorappointmentlistpageState
               child: ElevatedButton(
                 onPressed: () {
                   // Navigate to the AppointmentDetailsPage
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => AppointmentDetailsPage(
-                  //       appointment: appointment, // Pass appointment details
-                  //     ),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppointmentDetailsPage(
+                        appointment: appointment, // Pass appointment details
+                      ),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
@@ -193,7 +199,7 @@ class _HumandoctorappointmentlistpageState
                 ),
                 child: Text(
                   'View Details',
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14, color: Colors.white),
                 ),
               ),
             ),

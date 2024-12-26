@@ -13,8 +13,13 @@ class PetAppointmentDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pet Appointment Details'),
-        backgroundColor: Colors.teal,
+        title: Text(
+          'Pet Appointment Details',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 225, 118, 82),
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -91,7 +96,7 @@ class PetAppointmentDetailsPage extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16.0),
-        leading: Icon(icon, color: Colors.teal),
+        leading: Icon(icon, color: const Color.fromARGB(255, 225, 118, 82)),
         title: Text(
           label,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

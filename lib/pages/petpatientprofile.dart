@@ -56,8 +56,9 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
       appBar: AppBar(
         title: Text('SAFE-SPACE'),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor:
+            const Color.fromARGB(255, 225, 118, 82), // Teal color theme
+        foregroundColor: Colors.white,
         elevation: 1,
       ),
       body: Column(
@@ -208,7 +209,8 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
             label: 'Menu',
           ),
         ],
-        selectedItemColor: Colors.black,
+        selectedItemColor:
+            const Color.fromARGB(255, 225, 118, 82), // Teal color theme
         unselectedItemColor: Colors.grey,
       ),
     );
@@ -228,7 +230,8 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: Colors.grey),
+            Icon(icon,
+                size: 40, color: const Color.fromARGB(255, 225, 118, 82)),
             SizedBox(height: 8),
             Text(
               title,
@@ -263,7 +266,7 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
               Icon(
                 Icons.local_hospital,
                 size: 40,
-                color: Colors.grey,
+                color: const Color.fromARGB(255, 225, 118, 82),
               ),
               SizedBox(height: 8),
               Text(

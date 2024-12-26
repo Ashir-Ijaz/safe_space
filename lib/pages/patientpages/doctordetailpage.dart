@@ -64,7 +64,10 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                     slot['booked'] ? 'Booked' : 'Free',
                     style: TextStyle(
                       fontSize: 16,
-                      color: slot['booked'] ? Colors.red : Colors.green,
+                      color: slot['booked']
+                          ? Colors.red
+                          : const Color.fromARGB(255, 12, 133, 30),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -81,8 +84,13 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.doctor['name'] ?? 'Doctor Details'),
-        backgroundColor: Colors.teal,
+        title: Text(
+          widget.doctor['name'] ?? 'Doctor Details',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 2, 93, 98),
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: doctorSlots,
@@ -202,10 +210,13 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
           children: [
             CircleAvatar(
               radius: 40.0,
-              backgroundColor: Colors.teal,
+              backgroundColor: const Color.fromARGB(255, 172, 209, 200),
               child: Text(
                 widget.doctor['name']?.substring(0, 1).toUpperCase() ?? 'D',
-                style: TextStyle(fontSize: 32.0, color: Colors.white),
+                style: TextStyle(
+                  fontSize: 32.0,
+                  color: const Color.fromARGB(255, 2, 93, 98),
+                ),
               ),
             ),
             SizedBox(width: 16.0),

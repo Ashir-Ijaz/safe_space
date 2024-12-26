@@ -20,8 +20,13 @@ class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Appointments'),
-        backgroundColor: Colors.teal,
+        title: Text(
+          'My Appointments',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 225, 118, 82),
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: FutureBuilder<List<PetAppointmentDb>>(
         future: _fetchAppointments(),
@@ -55,8 +60,11 @@ class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
             ),
           );
         },
-        backgroundColor: Colors.teal,
-        child: Icon(Icons.add),
+        backgroundColor: const Color.fromARGB(255, 225, 118, 82),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -93,7 +101,10 @@ class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
-          colors: [Colors.teal.shade100, Colors.teal.shade50],
+          colors: [
+            const Color.fromARGB(255, 225, 118, 82),
+            const Color.fromARGB(128, 228, 211, 190)
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -118,33 +129,37 @@ class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
                 Text(
                   'Appointment ID',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.teal.shade700,
+                    color: Colors.white,
                   ),
                 ),
                 Text(
                   appointment.appointmentId,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
                 ),
               ],
             ),
-            Divider(thickness: 1, color: Colors.teal.shade200, height: 20),
+            Divider(
+                thickness: 1,
+                color: const Color.fromARGB(255, 225, 118, 82),
+                height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.person, color: Colors.teal, size: 18),
+                Icon(Icons.person,
+                    color: const Color.fromARGB(255, 255, 255, 255), size: 18),
                 SizedBox(width: 5),
                 Expanded(
                   child: Text(
                     appointment.username,
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: const Color.fromARGB(221, 255, 255, 255),
                     ),
                   ),
                 ),
@@ -152,22 +167,30 @@ class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
             ),
             Row(
               children: [
-                Icon(Icons.watch_later, color: Colors.teal, size: 18),
+                Icon(Icons.watch_later,
+                    color: const Color.fromARGB(255, 255, 255, 255), size: 18),
                 SizedBox(width: 5),
                 Text(
                   appointment.timeslot,
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: const Color.fromARGB(221, 255, 255, 255)),
                 ),
               ],
             ),
             Row(
               children: [
-                Icon(Icons.description, color: Colors.teal, size: 18),
+                Icon(Icons.description,
+                    color: const Color.fromARGB(255, 255, 255, 255), size: 18),
                 SizedBox(width: 5),
                 Expanded(
                   child: Text(
                     appointment.reasonforvisit,
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: const Color.fromARGB(255, 255, 255, 255)),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -188,7 +211,7 @@ class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: const Color.fromARGB(255, 225, 118, 82),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -196,7 +219,7 @@ class _PetAppointmentsListPageState extends State<PetAppointmentsListPage> {
                 ),
                 child: Text(
                   'View Details',
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14, color: Colors.white),
                 ),
               ),
             ),
