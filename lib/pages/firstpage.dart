@@ -5,6 +5,8 @@ import 'package:safe_space/pages/doctorlogin.dart';
 import 'package:safe_space/pages/patientlogin.dart';
 
 class Firstpage extends StatelessWidget {
+  const Firstpage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

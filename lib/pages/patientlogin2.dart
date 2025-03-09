@@ -3,6 +3,8 @@ import 'package:safe_space/pages/humanpatientprofile.dart';
 import 'package:safe_space/pages/petpatientprofile.dart';
 
 class PatientLogin extends StatelessWidget {
+  const PatientLogin({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

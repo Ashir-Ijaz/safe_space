@@ -290,6 +290,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditPageHuman extends StatefulWidget {
+  const EditPageHuman({super.key});
+
   @override
   _EditPageState createState() => _EditPageState();
 }
@@ -324,7 +326,7 @@ class _EditPageState extends State<EditPageHuman> {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        return querySnapshot.docs.first.data() as Map<String, dynamic>;
+        return querySnapshot.docs.first.data();
       } else {
         throw Exception('Profile not found.');
       }
