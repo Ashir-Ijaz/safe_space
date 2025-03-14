@@ -202,7 +202,7 @@ class _DoctorloginState extends State<Doctorlogin> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Dr. ${doctorName}',
+                        ' ${doctorName}',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,

@@ -346,7 +346,7 @@ class _EditPageState extends State<EditPageHuman> {
           _bioController.text = data['bio'] ?? '';
           _bloodgroupController.text = data['bloodgroup'] ?? '';
           _ageController.text = data['age']?.toString() ?? '';
-          _sexController.text = data['sex'] ?? '';
+          _sexController.text = data['gender'] ?? '';
         });
       }).catchError((error) {
         print('Error fetching profile: $error');

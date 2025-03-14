@@ -136,7 +136,7 @@ class ProfileInfoSection extends StatelessWidget {
               ProfileInfoCard(title: 'Name', value: patient.name),
               ProfileInfoCard(title: 'Username', value: patient.username),
               ProfileInfoCard(title: 'Age', value: patient.age.toString()),
-              ProfileInfoCard(title: 'Sex', value: patient.sex),
+              ProfileInfoCard(title: 'Gender', value: patient.sex),
               ProfileInfoCard(title: 'Blood Group', value: patient.bloodgroup),
               ProfileInfoCard(title: 'Email', value: patient.email),
               SizedBox(height: 30),

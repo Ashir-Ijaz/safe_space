@@ -292,7 +292,7 @@ class _EditPagePetState extends State<EditPagePet> {
           _nameController.text = data['name'] ?? '';
           _usernameController.text = data['username'] ?? '';
           _ageController.text = data['age']?.toString() ?? '';
-          _sexController.text = data['sex'] ?? '';
+          _sexController.text = data['gender'] ?? '';
         });
       }).catchError((error) {
         print('Error fetching profile: $error');

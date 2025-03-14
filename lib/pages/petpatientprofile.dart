@@ -19,7 +19,7 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
 
   String petName = "Pet Name";
   String age = "**";
-  String sex = "***";
+  String Gender = "***";
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
         setState(() {
           petName = data['name'] ?? "Pet Name";
           age = data['age']?.toString() ?? "**";
-          sex = data['sex'] ?? "***";
+          Gender = data['Gender'] ?? "***";
         });
       }
     } catch (e) {
@@ -100,7 +100,7 @@ class _PetpatientprofileState extends State<Petpatientprofile> {
                       ),
                     ),
                     Text('Age: $age'),
-                    Text('Sex: $sex'),
+                    Text('Gender: $Gender'),
                   ],
                 ),
               ],

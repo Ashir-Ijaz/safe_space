@@ -124,7 +124,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                   _buildDetailRow('Bio', widget.doctor['bio']),
                   _buildDetailRow('Email', widget.doctor['email']),
                   _buildDetailRow('Age', widget.doctor['age']?.toString()),
-                  _buildDetailRow('Sex', widget.doctor['sex']),
+                  _buildDetailRow('Gender', widget.doctor['Gender']),
                 ]),
                 SizedBox(height: 16.0),
                 _buildSectionTitle('Availability'),

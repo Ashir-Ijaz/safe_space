@@ -22,7 +22,7 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
 
   String patientName = "Patient Name";
   String age = "**";
-  String sex = "***";
+  String Gender = "***";
 
   List<Map<String, dynamic>> doctorList = [];
 
@@ -47,7 +47,7 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
         setState(() {
           patientName = data['name'] ?? "Patient Name";
           age = data['age']?.toString() ?? "**";
-          sex = data['sex'] ?? "***";
+          Gender = data['Gender'] ?? "***";
         });
       }
     } catch (e) {
@@ -143,7 +143,7 @@ class _HumanPatientProfileState extends State<HumanPatientProfile> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Sex: $sex',
+                          'Gender: $Gender',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.black54,

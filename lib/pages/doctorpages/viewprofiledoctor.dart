@@ -173,7 +173,7 @@ class ProfileInfoSection extends StatelessWidget {
                 ProfileInfoRow(
                     title: 'Email', value: doctor.email, isGreyed: true),
                 ProfileInfoRow(title: 'Age', value: doctor.age.toString()),
-                ProfileInfoRow(title: 'Sex', value: doctor.sex),
+                ProfileInfoRow(title: 'Gender', value: doctor.sex),
                 SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(

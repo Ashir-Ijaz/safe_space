@@ -440,7 +440,7 @@ class ProfileInfoSection extends StatelessWidget {
                       ProfileInfoRow(title: 'Name', value: pet.name),
                       ProfileInfoRow(title: 'Username', value: pet.username),
                       ProfileInfoRow(title: 'Age', value: pet.age.toString()),
-                      ProfileInfoRow(title: 'Sex', value: pet.sex),
+                      ProfileInfoRow(title: 'Gender', value: pet.sex),
                       ProfileInfoRow(title: 'Email', value: pet.email),
                     ],
                   ),

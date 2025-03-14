@@ -162,14 +162,14 @@ class _EditPageState extends State<EditPageDoctor> {
                 SizedBox(height: 20),
 
                 // Sex Field
-                Text('Sex', style: _fieldLabelStyle()),
+                Text('Gender', style: _fieldLabelStyle()),
                 SizedBox(height: 5),
                 TextFormField(
                   controller: _sexController,
-                  decoration: _inputDecoration('Enter your Sex'),
+                  decoration: _inputDecoration('Enter your Gender'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your Sex';
+                      return 'Please enter your Gender';
                     }
                     return null;
                   },

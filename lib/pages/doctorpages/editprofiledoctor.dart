@@ -566,7 +566,7 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
           _nameController.text = data['name'] ?? '';
           _usernameController.text = data['username'] ?? '';
           _ageController.text = data['age']?.toString() ?? '';
-          _sexController.text = data['sex'] ?? '';
+          _sexController.text = data['gender'] ?? '';
           _bioController.text = data['bio'] ?? '';
           _specializationController.text = data['specialization'] ?? '';
           _qualificationController.text = data['qualification'] ?? '';
@@ -626,7 +626,7 @@ class _EditPageDoctorState extends State<EditPageDoctor> {
                       'Bio', _bioController, 'Tell something about yourself',
                       isMultiline: true),
                   _buildTextField('Age', _ageController, 'Enter your age'),
-                  _buildDropdown('Sex', _sexController, ['Male', 'Female']),
+                  _buildDropdown('Gender', _sexController, ['Male', 'Female']),
                 ]),
                 _buildSectionHeader('Professional Details'),
                 _buildCard([
